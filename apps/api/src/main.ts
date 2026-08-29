@@ -1,3 +1,10 @@
+import { config as loadEnv } from 'dotenv';
+import { resolve } from 'path';
+
+// apps/api/src (dev, via ts-node) and apps/api/dist (prod) sit at the same
+// depth below the repo root, so this resolves to the root .env either way.
+loadEnv({ path: resolve(__dirname, '../../../.env') });
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
