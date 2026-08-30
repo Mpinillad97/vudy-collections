@@ -23,3 +23,14 @@ model PaymentRequest {
   note           String?
   createdAt      DateTime @default(now())
 }
+
+// First piece of the commercial domain (Customer -> Invoice -> Payment
+// Request). Standalone for now — no Invoice/PaymentRequest relations yet,
+// those are out of scope for M2.1. Email is intentionally not @unique: the
+// assessment doesn't establish email as Customer's unique identity.
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  createdAt DateTime @default(now())
+}
