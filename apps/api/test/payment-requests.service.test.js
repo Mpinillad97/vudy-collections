@@ -8,8 +8,20 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { PaymentRequestsService } = require('../dist/payment-requests/payment-requests.service');
-const { PaymentRequestPersistenceError } = require('../dist/payment-requests/payment-requests.exceptions');
+const {
+  PaymentRequestNotFoundError,
+  PaymentRequestPersistenceError,
+  PaymentRequestQueryError,
+} = require('../dist/payment-requests/payment-requests.exceptions');
 const { VudyConfigurationError, VudyUpstreamError } = require('../dist/vudy/vudy.exceptions');
+
+// A VudyService stub that fails loudly if the read paths ever touch it —
+// findById/findAll must never call Vudy.
+const vudyServiceThatMustNotBeCalled = {
+  createPaymentRequest: async () => {
+    throw new Error('VudyService.createPaymentRequest must not be called by a read operation');
+  },
+};
 
 const ORIGINAL_TARGET_ADDRESS = process.env.VUDY_TARGET_ADDRESS;
 
@@ -167,4 +179,142 @@ test('wraps a persistence failure that happens after a successful Vudy call', as
       },
     );
   });
+});
+
+// --- findById -----------------------------------------------------------
+
+test('findById returns the persisted record when it exists', async () => {
+  const stored = {
+    id: 'local_1',
+    vudyRequestId: 'req_abc123',
+    vudyUrl: 'https://vudy.app/request/tx_xyz789',
+    vudyEmbedUrl: 'https://vudy.app/embed/request/tx_xyz789',
+    targetAddress: '0xTARGET',
+    amount: '1',
+    currencyToken: 'USD',
+    requestedChain: 'ethereum',
+    requestedToken: 'USDC',
+    customId: null,
+    note: null,
+    createdAt: new Date('2026-01-01T00:00:00.000Z'),
+  };
+  let whereArg;
+  const fakePrisma = {
+    paymentRequest: {
+      findUnique: async (args) => {
+        whereArg = args.where;
+        return stored;
+      },
+    },
+  };
+
+  const service = new PaymentRequestsService(vudyServiceThatMustNotBeCalled, fakePrisma);
+  const result = await service.findById('local_1');
+
+  assert.deepEqual(result, stored);
+  assert.deepEqual(whereArg, { id: 'local_1' });
+});
+
+test('findById throws a 404 PaymentRequestNotFoundError when no record matches', async () => {
+  const fakePrisma = {
+    paymentRequest: {
+      findUnique: async () => null,
+    },
+  };
+
+  const service = new PaymentRequestsService(vudyServiceThatMustNotBeCalled, fakePrisma);
+
+  await assert.rejects(
+    () => service.findById('does-not-exist'),
+    (err) => {
+      assert.ok(err instanceof PaymentRequestNotFoundError);
+      assert.equal(err.getStatus(), 404);
+      assert.match(err.message, /does-not-exist/);
+      return true;
+    },
+  );
+});
+
+test('findById converts a Prisma failure into a controlled error without leaking details', async () => {
+  const fakePrisma = {
+    paymentRequest: {
+      findUnique: async () => {
+        throw new Error('P1001: Can\'t reach database server at internal-db-host:5432');
+      },
+    },
+  };
+
+  const service = new PaymentRequestsService(vudyServiceThatMustNotBeCalled, fakePrisma);
+
+  await assert.rejects(
+    () => service.findById('local_1'),
+    (err) => {
+      assert.ok(err instanceof PaymentRequestQueryError);
+      assert.equal(err.getStatus(), 500);
+      // The raw Prisma error text (host, port, driver internals) must never surface.
+      assert.doesNotMatch(err.message, /internal-db-host/);
+      assert.doesNotMatch(JSON.stringify(err.getResponse()), /internal-db-host/);
+      return true;
+    },
+  );
+});
+
+// --- findAll --------------------------------------------------------------
+
+test('findAll returns the persisted records ordered by most recent first', async () => {
+  const records = [
+    { id: 'local_2', vudyRequestId: 'req_2', createdAt: new Date('2026-01-02T00:00:00.000Z') },
+    { id: 'local_1', vudyRequestId: 'req_1', createdAt: new Date('2026-01-01T00:00:00.000Z') },
+  ];
+  let findManyArgs;
+  const fakePrisma = {
+    paymentRequest: {
+      findMany: async (args) => {
+        findManyArgs = args;
+        return records;
+      },
+    },
+  };
+
+  const service = new PaymentRequestsService(vudyServiceThatMustNotBeCalled, fakePrisma);
+  const result = await service.findAll();
+
+  assert.deepEqual(result, records);
+  assert.deepEqual(findManyArgs, { orderBy: { createdAt: 'desc' } });
+});
+
+test('findAll returns an empty array when there are no records, without throwing', async () => {
+  const fakePrisma = {
+    paymentRequest: {
+      findMany: async () => [],
+    },
+  };
+
+  const service = new PaymentRequestsService(vudyServiceThatMustNotBeCalled, fakePrisma);
+  const result = await service.findAll();
+
+  assert.deepEqual(result, []);
+});
+
+test('findAll converts a Prisma failure into a controlled error without leaking details', async () => {
+  const fakePrisma = {
+    paymentRequest: {
+      findMany: async () => {
+        throw new Error('P1001: Can\'t reach database server at internal-db-host:5432');
+      },
+    },
+  };
+
+  const service = new PaymentRequestsService(vudyServiceThatMustNotBeCalled, fakePrisma);
+
+  await assert.rejects(
+    () => service.findAll(),
+    (err) => {
+      assert.ok(err instanceof PaymentRequestQueryError);
+      assert.equal(err.getStatus(), 500);
+      assert.doesNotMatch(err.message, /internal-db-host/);
+      assert.doesNotMatch(JSON.stringify(err.getResponse()), /internal-db-host/);
+      return true;
+    },
+  );
 });
