@@ -21,6 +21,9 @@ const serviceThatMustNotBeCalled = {
   create: async () => {
     throw new Error('InvoicesService.create must not be called when validation fails');
   },
+  createPaymentRequest: async () => {
+    throw new Error('InvoicesService.createPaymentRequest must not be called when validation fails');
+  },
 };
 
 test('rejects a request with no customerId', async () => {
@@ -111,4 +114,64 @@ test('accepts a valid payload and forwards only the documented fields, dropping 
   assert.deepEqual(receivedArgs, VALID);
   assert.equal(result.success, true);
   assert.equal(result.data.number, 'INV-001');
+});
+
+// --- POST /invoices/:id/payment-request ------------------------------------
+
+test('createPaymentRequest rejects a request with no requestedChain', async () => {
+  const controller = new InvoicesController(serviceThatMustNotBeCalled);
+  await assert.rejects(
+    () => controller.createPaymentRequest('inv_1', { requestedToken: 'USDC' }),
+    BadRequestException,
+  );
+});
+
+test('createPaymentRequest rejects a request with an empty requestedChain', async () => {
+  const controller = new InvoicesController(serviceThatMustNotBeCalled);
+  await assert.rejects(
+    () => controller.createPaymentRequest('inv_1', { requestedChain: '  ', requestedToken: 'USDC' }),
+    BadRequestException,
+  );
+});
+
+test('createPaymentRequest rejects a request with no requestedToken', async () => {
+  const controller = new InvoicesController(serviceThatMustNotBeCalled);
+  await assert.rejects(
+    () => controller.createPaymentRequest('inv_1', { requestedChain: 'ethereum' }),
+    BadRequestException,
+  );
+});
+
+test('createPaymentRequest rejects a request with an empty requestedToken', async () => {
+  const controller = new InvoicesController(serviceThatMustNotBeCalled);
+  await assert.rejects(
+    () => controller.createPaymentRequest('inv_1', { requestedChain: 'ethereum', requestedToken: '' }),
+    BadRequestException,
+  );
+});
+
+test('createPaymentRequest accepts a valid payload and never forwards a client-supplied amount/targetAddress (8)', async () => {
+  let receivedInvoiceId;
+  let receivedDto;
+  const fakeService = {
+    createPaymentRequest: async (invoiceId, dto) => {
+      receivedInvoiceId = invoiceId;
+      receivedDto = dto;
+      return { id: 'pr_1', invoiceId, vudyRequestId: 'req_abc123' };
+    },
+  };
+  const controller = new InvoicesController(fakeService);
+
+  const result = await controller.createPaymentRequest('inv_1', {
+    requestedChain: 'ethereum',
+    requestedToken: 'USDC',
+    // A caller could try to inject these — they must never reach the service.
+    amount: 999999,
+    targetAddress: '0xATTACKER_CONTROLLED',
+  });
+
+  assert.equal(receivedInvoiceId, 'inv_1');
+  assert.deepEqual(receivedDto, { requestedChain: 'ethereum', requestedToken: 'USDC' });
+  assert.equal(result.success, true);
+  assert.equal(result.data.id, 'pr_1');
 });

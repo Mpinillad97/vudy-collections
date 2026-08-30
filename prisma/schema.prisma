@@ -7,8 +7,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Our own record of a Payment Request created through Vudy. Standalone for
-// now — no Customer/Invoice relations, those are out of scope for M1.2.
+// Our own record of a Payment Request created through Vudy. Optionally
+// linked to the Invoice it was generated from (M2.3) — invoiceId is
+// nullable because PaymentRequests created via the original M1.2 flow
+// (POST /payment-requests, /vudy/payment-requests/test) have no Invoice.
+// @unique on invoiceId enforces Invoice 1 -> 0..1 PaymentRequest at the DB
+// level: a given Invoice can never have more than one local PaymentRequest.
 model PaymentRequest {
   id             String   @id @default(cuid())
   vudyRequestId  String   @unique
@@ -22,6 +26,8 @@ model PaymentRequest {
   customId       String?
   note           String?
   createdAt      DateTime @default(now())
+  invoiceId      String?  @unique
+  invoice        Invoice? @relation(fields: [invoiceId], references: [id])
 }
 
 // Second piece of the commercial domain (Customer -> Invoice -> Payment
@@ -35,18 +41,20 @@ model Customer {
   invoices  Invoice[]
 }
 
-// Belongs to a Customer. Does not yet connect to PaymentRequest/Vudy —
-// that's out of scope for M2.2. Amount uses the same Decimal(18,6) +
+// Belongs to a Customer. Optionally linked to the PaymentRequest generated
+// from it (M2.3) — a Payment Request creation/settlement/status machine is
+// still out of scope. Amount uses the same Decimal(18,6) +
 // number-at-the-DTO-boundary approach as PaymentRequest.amount, for
 // consistency; a stricter money strategy (e.g. string-based amounts) can
 // be evaluated later, but is not implemented now.
 model Invoice {
-  id         String   @id @default(cuid())
-  customerId String
-  customer   Customer @relation(fields: [customerId], references: [id])
-  number     String
-  amount     Decimal  @db.Decimal(18, 6)
-  currency   String
-  dueDate    DateTime
-  createdAt  DateTime @default(now())
+  id             String          @id @default(cuid())
+  customerId     String
+  customer       Customer        @relation(fields: [customerId], references: [id])
+  number         String
+  amount         Decimal         @db.Decimal(18, 6)
+  currency       String
+  dueDate        DateTime
+  createdAt      DateTime        @default(now())
+  paymentRequest PaymentRequest?
 }

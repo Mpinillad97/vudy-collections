@@ -1,11 +1,14 @@
 import { BadRequestException, Body, Controller, Get, Param, Post } from '@nestjs/common';
+import type { CreateInvoicePaymentRequestDto } from './dto/create-invoice-payment-request.dto';
 import type { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { InvoicesService } from './invoices.service';
 
 /**
  * Second piece of the commercial domain (Customer -> Invoice -> Payment
- * Request). Read/write only against PostgreSQL via InvoicesService —
- * never talks to Vudy, never touches PaymentRequest.
+ * Request). Read/write against PostgreSQL via InvoicesService. Only the
+ * :id/payment-request route talks to Vudy (via VudyService, reused as-is
+ * from M1.1/M1.2) and touches PaymentRequest — create/findAll/findOne
+ * never do.
  */
 @Controller('invoices')
 export class InvoicesController {
@@ -34,6 +37,29 @@ export class InvoicesController {
   async findOne(@Param('id') id: string) {
     const record = await this.invoicesService.findById(id);
     return { success: true, data: record };
+  }
+
+  @Post(':id/payment-request')
+  async createPaymentRequest(
+    @Param('id') id: string,
+    @Body() body: CreateInvoicePaymentRequestDto,
+  ) {
+    this.validatePaymentRequestBody(body);
+    const record = await this.invoicesService.createPaymentRequest(id, {
+      requestedChain: body.requestedChain,
+      requestedToken: body.requestedToken,
+    });
+    return { success: true, data: record };
+  }
+
+  private validatePaymentRequestBody(body: CreateInvoicePaymentRequestDto): void {
+    if (typeof body?.requestedChain !== 'string' || body.requestedChain.trim() === '') {
+      throw new BadRequestException('"requestedChain" is required and must be a non-empty string.');
+    }
+
+    if (typeof body?.requestedToken !== 'string' || body.requestedToken.trim() === '') {
+      throw new BadRequestException('"requestedToken" is required and must be a non-empty string.');
+    }
   }
 
   private validate(body: CreateInvoiceDto): void {

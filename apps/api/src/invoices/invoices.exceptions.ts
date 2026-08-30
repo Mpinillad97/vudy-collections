@@ -63,3 +63,23 @@ export class InvoicePersistenceError extends HttpException {
     );
   }
 }
+
+/**
+ * Local duplication guard (not distributed idempotency): this Invoice
+ * already has an associated PaymentRequest, so another one cannot be
+ * created through this endpoint. The existing paymentRequestId is echoed
+ * back — it's our own local id, not a secret — so the caller can look it
+ * up instead.
+ */
+export class InvoicePaymentRequestAlreadyExistsError extends HttpException {
+  constructor(invoiceId: string, paymentRequestId: string) {
+    super(
+      {
+        code: 'INVOICE_PAYMENT_REQUEST_ALREADY_EXISTS',
+        message: `Invoice "${invoiceId}" already has an associated payment request (${paymentRequestId}).`,
+        paymentRequestId,
+      },
+      HttpStatus.CONFLICT,
+    );
+  }
+}
