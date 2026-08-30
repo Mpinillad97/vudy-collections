@@ -1,11 +1,23 @@
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AppLayout } from './layouts/AppLayout';
+import { CustomersPage } from './pages/CustomersPage';
+import { DashboardPage } from './pages/DashboardPage';
+import { InvoicesPage } from './pages/InvoicesPage';
+import { PaymentRequestsPage } from './pages/PaymentRequestsPage';
+
 function App() {
   return (
-    <main className="flex min-h-screen items-center justify-center">
-      <h1 className="text-2xl font-semibold text-slate-800">
-        Vudy Collections
-      </h1>
-    </main>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route element={<AppLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="customers" element={<CustomersPage />} />
+          <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="payment-requests" element={<PaymentRequestsPage />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
