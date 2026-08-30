@@ -1,0 +1,118 @@
+import { useState, type FormEvent } from 'react';
+import { Button } from '../ui/Button';
+import { ApiError } from '../../lib/api/client';
+import { createInvoicePaymentRequest } from '../../lib/api/invoices';
+import type { PaymentRequest } from '../../types/payment-request';
+
+interface FieldErrors {
+  requestedChain?: string;
+  requestedToken?: string;
+}
+
+interface CreatePaymentRequestFormProps {
+  invoiceId: string;
+  onCreated: (paymentRequest: PaymentRequest) => void;
+}
+
+/**
+ * Deliberately minimal: requestedChain/requestedToken are the only fields
+ * POST /invoices/:id/payment-request accepts. Amount and currency are NOT
+ * inputs here — the backend derives them from the Invoice itself.
+ */
+export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePaymentRequestFormProps) {
+  const [requestedChain, setRequestedChain] = useState('');
+  const [requestedToken, setRequestedToken] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  function validate(): boolean {
+    const errors: FieldErrors = {};
+    if (!requestedChain.trim()) {
+      errors.requestedChain = 'Chain is required.';
+    }
+    if (!requestedToken.trim()) {
+      errors.requestedToken = 'Token is required.';
+    }
+    setFieldErrors(errors);
+    return Object.keys(errors).length === 0;
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    // Defense in depth against double submit — the button is already
+    // disabled while submitting, so this should never actually trigger.
+    if (submitting) {
+      return;
+    }
+    if (!validate()) {
+      return;
+    }
+
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const paymentRequest = await createInvoicePaymentRequest(invoiceId, {
+        requestedChain: requestedChain.trim(),
+        requestedToken: requestedToken.trim(),
+      });
+      onCreated(paymentRequest);
+    } catch (error) {
+      setSubmitError(
+        error instanceof ApiError ? error.message : 'Could not create the payment request.',
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="pr-chain" className="block text-sm font-medium text-slate-700">
+            Chain
+          </label>
+          <input
+            id="pr-chain"
+            type="text"
+            value={requestedChain}
+            onChange={(event) => setRequestedChain(event.target.value)}
+            placeholder="ethereum"
+            disabled={submitting}
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none disabled:bg-slate-100"
+          />
+          {fieldErrors.requestedChain ? (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.requestedChain}</p>
+          ) : null}
+        </div>
+
+        <div>
+          <label htmlFor="pr-token" className="block text-sm font-medium text-slate-700">
+            Token
+          </label>
+          <input
+            id="pr-token"
+            type="text"
+            value={requestedToken}
+            onChange={(event) => setRequestedToken(event.target.value)}
+            placeholder="USDC"
+            disabled={submitting}
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none disabled:bg-slate-100"
+          />
+          {fieldErrors.requestedToken ? (
+            <p className="mt-1 text-sm text-red-600">{fieldErrors.requestedToken}</p>
+          ) : null}
+        </div>
+      </div>
+
+      <div>
+        <Button type="submit" disabled={submitting}>
+          {submitting ? 'Creating…' : 'Create Payment Request'}
+        </Button>
+      </div>
+
+      {submitError ? <p className="text-sm text-red-600">{submitError}</p> : null}
+    </form>
+  );
+}

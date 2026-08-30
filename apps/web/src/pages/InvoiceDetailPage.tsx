@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/ui/Card';
+import { CreatePaymentRequestForm } from '../components/payment-requests/CreatePaymentRequestForm';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { LoadingState } from '../components/states/LoadingState';
@@ -9,6 +10,7 @@ import { ApiError } from '../lib/api/client';
 import { getInvoice } from '../lib/api/invoices';
 import { formatAmount, formatDate } from '../lib/format';
 import type { InvoiceWithPaymentRequest } from '../types/invoice';
+import type { PaymentRequest } from '../types/payment-request';
 
 type Status = 'loading' | 'success' | 'error';
 
@@ -26,33 +28,45 @@ export function InvoiceDetailPage() {
   const [status, setStatus] = useState<Status>('loading');
   const [invoice, setInvoice] = useState<InvoiceWithPaymentRequest | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [paymentRequestMessage, setPaymentRequestMessage] = useState<string | null>(null);
 
-  useEffect(() => {
+  const loadInvoice = useCallback(async () => {
     if (!id) {
       setErrorMessage('No invoice id was provided.');
       setStatus('error');
       return;
     }
 
-    let cancelled = false;
     setStatus('loading');
-
-    getInvoice(id)
-      .then((data) => {
-        if (cancelled) return;
-        setInvoice(data);
-        setStatus('success');
-      })
-      .catch((error: unknown) => {
-        if (cancelled) return;
-        setErrorMessage(error instanceof ApiError ? error.message : 'Could not load this invoice.');
-        setStatus('error');
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    try {
+      const data = await getInvoice(id);
+      setInvoice(data);
+      setStatus('success');
+    } catch (error) {
+      setErrorMessage(error instanceof ApiError ? error.message : 'Could not load this invoice.');
+      setStatus('error');
+    }
   }, [id]);
+
+  useEffect(() => {
+    loadInvoice();
+  }, [loadInvoice]);
+
+  // Re-fetches the invoice from the backend after a successful creation
+  // instead of fabricating the merged object locally, per M3.3 guidance —
+  // GET /invoices/:id is the definitive source of truth.
+  async function handlePaymentRequestCreated(paymentRequest: PaymentRequest) {
+    setPaymentRequestMessage(`Payment request ${paymentRequest.vudyRequestId} was created.`);
+    if (!id) return;
+    try {
+      const fresh = await getInvoice(id);
+      setInvoice(fresh);
+    } catch {
+      setPaymentRequestMessage(
+        `Payment request ${paymentRequest.vudyRequestId} was created, but the page could not refresh automatically. Reload to see it.`,
+      );
+    }
+  }
 
   return (
     <div>
@@ -76,6 +90,13 @@ export function InvoiceDetailPage() {
 
           <Card>
             <h2 className="text-sm font-semibold text-slate-900">Payment request</h2>
+
+            {paymentRequestMessage ? (
+              <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+                {paymentRequestMessage}
+              </div>
+            ) : null}
+
             {invoice.paymentRequest ? (
               <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Vudy request ID" value={invoice.paymentRequest.vudyRequestId} />
@@ -91,10 +112,14 @@ export function InvoiceDetailPage() {
                 <Field label="Created" value={formatDate(invoice.paymentRequest.createdAt)} />
               </dl>
             ) : (
-              <div className="mt-4">
+              <div className="mt-4 flex flex-col gap-4">
                 <EmptyState
                   title="No payment request yet"
-                  description="This invoice does not have a payment request associated with it."
+                  description="Create one below using this invoice's amount and currency."
+                />
+                <CreatePaymentRequestForm
+                  invoiceId={invoice.id}
+                  onCreated={handlePaymentRequestCreated}
                 />
               </div>
             )}
