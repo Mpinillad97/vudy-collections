@@ -6,6 +6,7 @@ import { CreatePaymentRequestForm } from '../components/payment-requests/CreateP
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { LoadingState } from '../components/states/LoadingState';
+import { SuccessState } from '../components/states/SuccessState';
 import { ApiError } from '../lib/api/client';
 import { getInvoice } from '../lib/api/invoices';
 import { formatAmount, formatDate } from '../lib/format';
@@ -70,7 +71,10 @@ export function InvoiceDetailPage() {
 
   return (
     <div>
-      <PageHeader title="Invoice detail" description="Details for a single invoice." />
+      <PageHeader
+        title={invoice ? `Invoice ${invoice.number}` : 'Invoice detail'}
+        description="Details for a single invoice."
+      />
 
       {status === 'loading' ? <LoadingState /> : null}
       {status === 'error' ? <ErrorState title="Could not load invoice" message={errorMessage} /> : null}
@@ -92,9 +96,7 @@ export function InvoiceDetailPage() {
             <h2 className="text-sm font-semibold text-slate-900">Payment request</h2>
 
             {paymentRequestMessage ? (
-              <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-                {paymentRequestMessage}
-              </div>
+              <SuccessState message={paymentRequestMessage} className="mt-4" />
             ) : null}
 
             {invoice.paymentRequest ? (

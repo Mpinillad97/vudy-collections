@@ -7,6 +7,7 @@ import { CustomerList } from '../components/customers/CustomerList';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { LoadingState } from '../components/states/LoadingState';
+import { SuccessState } from '../components/states/SuccessState';
 import { ApiError } from '../lib/api/client';
 import { getCustomers } from '../lib/api/customers';
 import type { Customer } from '../types/customer';
@@ -59,11 +60,7 @@ export function CustomersPage() {
         }
       />
 
-      {successMessage ? (
-        <div className="mb-4 rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          {successMessage}
-        </div>
-      ) : null}
+      {successMessage ? <SuccessState message={successMessage} /> : null}
 
       {isFormOpen ? (
         <Card className="mb-6">

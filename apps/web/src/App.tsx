@@ -4,6 +4,7 @@ import { CustomersPage } from './pages/CustomersPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { InvoiceDetailPage } from './pages/InvoiceDetailPage';
 import { InvoicesPage } from './pages/InvoicesPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 import { PaymentRequestsPage } from './pages/PaymentRequestsPage';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="invoices/:id" element={<InvoiceDetailPage />} />
           <Route path="payment-requests" element={<PaymentRequestsPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

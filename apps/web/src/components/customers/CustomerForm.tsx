@@ -6,6 +6,9 @@ import type { Customer } from '../../types/customer';
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const INPUT_CLASSNAME =
+  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-400';
+
 interface FieldErrors {
   name?: string;
   email?: string;
@@ -68,9 +71,16 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
           type="text"
           value={name}
           onChange={(event) => setName(event.target.value)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none"
+          disabled={submitting}
+          aria-invalid={fieldErrors.name ? true : undefined}
+          aria-describedby={fieldErrors.name ? 'customer-name-error' : undefined}
+          className={INPUT_CLASSNAME}
         />
-        {fieldErrors.name ? <p className="mt-1 text-sm text-red-600">{fieldErrors.name}</p> : null}
+        {fieldErrors.name ? (
+          <p id="customer-name-error" className="mt-1 text-sm text-red-600">
+            {fieldErrors.name}
+          </p>
+        ) : null}
       </div>
 
       <div>
@@ -82,9 +92,16 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
           type="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none"
+          disabled={submitting}
+          aria-invalid={fieldErrors.email ? true : undefined}
+          aria-describedby={fieldErrors.email ? 'customer-email-error' : undefined}
+          className={INPUT_CLASSNAME}
         />
-        {fieldErrors.email ? <p className="mt-1 text-sm text-red-600">{fieldErrors.email}</p> : null}
+        {fieldErrors.email ? (
+          <p id="customer-email-error" className="mt-1 text-sm text-red-600">
+            {fieldErrors.email}
+          </p>
+        ) : null}
       </div>
 
       <div>

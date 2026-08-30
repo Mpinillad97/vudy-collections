@@ -33,7 +33,11 @@ export function AppLayout() {
       </header>
 
       {isMobileNavOpen ? (
-        <nav id="mobile-nav" className="border-b border-slate-200 bg-white px-4 py-2 lg:hidden">
+        <nav
+          id="mobile-nav"
+          aria-label="Main navigation"
+          className="border-b border-slate-200 bg-white px-4 py-2 lg:hidden"
+        >
           <ul className="flex flex-col gap-1">
             {NAV_ITEMS.map((item) => (
               <li key={item.to}>

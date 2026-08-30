@@ -11,9 +11,9 @@ export function CustomerList({ customers }: CustomerListProps) {
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
           <tr>
-            <th className="px-4 py-3">Name</th>
-            <th className="px-4 py-3">Email</th>
-            <th className="px-4 py-3">Created</th>
+            <th scope="col" className="px-4 py-3">Name</th>
+            <th scope="col" className="px-4 py-3">Email</th>
+            <th scope="col" className="px-4 py-3">Created</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
