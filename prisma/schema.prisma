@@ -24,13 +24,29 @@ model PaymentRequest {
   createdAt      DateTime @default(now())
 }
 
-// First piece of the commercial domain (Customer -> Invoice -> Payment
-// Request). Standalone for now — no Invoice/PaymentRequest relations yet,
-// those are out of scope for M2.1. Email is intentionally not @unique: the
-// assessment doesn't establish email as Customer's unique identity.
+// Second piece of the commercial domain (Customer -> Invoice -> Payment
+// Request). Email is intentionally not @unique: the assessment doesn't
+// establish email as Customer's unique identity.
 model Customer {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
   email     String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  invoices  Invoice[]
+}
+
+// Belongs to a Customer. Does not yet connect to PaymentRequest/Vudy —
+// that's out of scope for M2.2. Amount uses the same Decimal(18,6) +
+// number-at-the-DTO-boundary approach as PaymentRequest.amount, for
+// consistency; a stricter money strategy (e.g. string-based amounts) can
+// be evaluated later, but is not implemented now.
+model Invoice {
+  id         String   @id @default(cuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id])
+  number     String
+  amount     Decimal  @db.Decimal(18, 6)
+  currency   String
+  dueDate    DateTime
+  createdAt  DateTime @default(now())
 }
