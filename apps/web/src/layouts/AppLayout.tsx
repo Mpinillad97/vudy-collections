@@ -10,8 +10,22 @@ const NAV_ITEMS = [
 
 function navLinkClassName(isActive: boolean): string {
   return `block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-    isActive ? 'bg-slate-900 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    isActive ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
   }`;
+}
+
+function BrandMark() {
+  return (
+    <span className="flex items-center gap-2">
+      <span
+        aria-hidden="true"
+        className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600 text-sm font-bold text-white"
+      >
+        V
+      </span>
+      <span className="text-lg font-semibold tracking-tight text-slate-900">Vudy Collections</span>
+    </span>
+  );
 }
 
 export function AppLayout() {
@@ -20,13 +34,13 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
-        <span className="text-lg font-semibold tracking-tight">Vudy Collections</span>
+        <BrandMark />
         <button
           type="button"
           aria-expanded={isMobileNavOpen}
           aria-controls="mobile-nav"
           onClick={() => setIsMobileNavOpen((open) => !open)}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700"
+          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
           Menu
         </button>
@@ -59,7 +73,7 @@ export function AppLayout() {
         <aside className="hidden shrink-0 lg:block lg:w-56">
           <div className="sticky top-8">
             <div className="mb-8 px-2">
-              <span className="text-lg font-semibold tracking-tight">Vudy Collections</span>
+              <BrandMark />
             </div>
             <nav aria-label="Main navigation">
               <ul className="flex flex-col gap-1">

@@ -6,7 +6,7 @@ import type { Customer } from '../../types/customer';
 import type { Invoice } from '../../types/invoice';
 
 const INPUT_CLASSNAME =
-  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-slate-500 focus:outline-none focus:ring-2 focus:ring-slate-400 disabled:bg-slate-100 disabled:text-slate-400';
+  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400';
 
 interface FieldErrors {
   customerId?: string;

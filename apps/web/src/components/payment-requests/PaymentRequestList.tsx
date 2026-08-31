@@ -38,7 +38,7 @@ export function PaymentRequestList({
             const customer = invoice ? customersById.get(invoice.customerId) : undefined;
 
             return (
-              <tr key={paymentRequest.id}>
+              <tr key={paymentRequest.id} className="transition-colors hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-900">
                   {customer?.name ?? <span className="text-slate-400">—</span>}
                 </td>
@@ -65,7 +65,7 @@ export function PaymentRequestList({
                   {paymentRequest.invoiceId ? (
                     <Link
                       to={`/invoices/${paymentRequest.invoiceId}`}
-                      className="text-sm font-medium text-slate-900 hover:underline"
+                      className="text-sm font-medium text-indigo-600 hover:underline"
                     >
                       View invoice →
                     </Link>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -116,6 +117,7 @@ export function InvoiceDetailPage() {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'Invoices', to: '/invoices' }, { label: invoice?.number ?? 'Invoice' }]} />
       <PageHeader
         title={invoice ? `Invoice ${invoice.number}` : 'Invoice'}
         description="Commercial detail and collection status for this invoice."

@@ -19,7 +19,7 @@ export function CustomerList({ customers }: CustomerListProps) {
         </thead>
         <tbody className="divide-y divide-slate-100">
           {customers.map((customer) => (
-            <tr key={customer.id}>
+            <tr key={customer.id} className="transition-colors hover:bg-slate-50">
               <td className="px-4 py-3 font-medium text-slate-900">
                 <Link to={`/customers/${customer.id}`} className="hover:underline">
                   {customer.name}

@@ -10,7 +10,7 @@ export function LoadingState({ message = 'Loading…' }: LoadingStateProps) {
     >
       <span
         aria-hidden="true"
-        className="h-6 w-6 animate-spin rounded-full border-2 border-slate-300 border-t-slate-900"
+        className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600"
       />
       <p className="text-sm text-slate-500">{message}</p>
     </div>

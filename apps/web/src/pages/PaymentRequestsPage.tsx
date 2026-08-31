@@ -79,7 +79,7 @@ export function PaymentRequestsPage() {
           title="No payment requests yet"
           description="Create a payment request from an outstanding invoice when you're ready to collect."
           action={
-            <Link to="/invoices" className="text-sm font-medium text-slate-900 underline hover:no-underline">
+            <Link to="/invoices" className="text-sm font-medium text-indigo-600 underline hover:no-underline">
               View invoices →
             </Link>
           }

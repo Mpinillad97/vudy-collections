@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/states/EmptyState';
@@ -49,6 +50,7 @@ export function CustomerDetailPage() {
 
   return (
     <div>
+      <Breadcrumbs items={[{ label: 'Customers', to: '/customers' }, { label: customer?.name ?? 'Customer' }]} />
       <PageHeader
         title={customer ? customer.name : 'Customer'}
         description="Contact details and outstanding invoices for this customer."
@@ -85,7 +87,7 @@ export function CustomerDetailPage() {
                   action={
                     <Link
                       to="/invoices"
-                      className="text-sm font-medium text-slate-900 underline hover:no-underline"
+                      className="text-sm font-medium text-indigo-600 underline hover:no-underline"
                     >
                       Go to Invoices →
                     </Link>
@@ -113,7 +115,7 @@ export function CustomerDetailPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {invoices.map((invoice) => (
-                      <tr key={invoice.id}>
+                      <tr key={invoice.id} className="transition-colors hover:bg-slate-50">
                         <td className="px-4 py-3 font-medium text-slate-900">
                           <Link to={`/invoices/${invoice.id}`} className="hover:underline">
                             {invoice.number}
