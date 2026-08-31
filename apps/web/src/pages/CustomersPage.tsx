@@ -44,7 +44,7 @@ export function CustomersPage() {
 
   function handleCreated(customer: Customer) {
     setIsFormOpen(false);
-    setSuccessMessage(`"${customer.name}" was added.`);
+    setSuccessMessage(`Customer created — "${customer.name}" is ready for invoicing.`);
     loadCustomers();
   }
 
@@ -52,7 +52,7 @@ export function CustomersPage() {
     <div>
       <PageHeader
         title="Customers"
-        description="Customers Collections has on file."
+        description="The businesses you invoice and collect payments from."
         action={
           <Button variant={isFormOpen ? 'secondary' : 'primary'} onClick={handleToggleForm}>
             {isFormOpen ? 'Cancel' : 'New customer'}
@@ -73,7 +73,7 @@ export function CustomersPage() {
       {status === 'success' && customers.length === 0 ? (
         <EmptyState
           title="No customers yet"
-          description="Create your first customer to get started."
+          description="Add your first customer to start managing invoices and collections."
         />
       ) : null}
       {status === 'success' && customers.length > 0 ? <CustomerList customers={customers} /> : null}

@@ -7,6 +7,13 @@ export async function getCustomers(): Promise<Customer[]> {
   return response.data;
 }
 
+export async function getCustomer(id: string): Promise<Customer> {
+  const response = await apiClient.get<ApiSuccessEnvelope<Customer>>(
+    `/customers/${encodeURIComponent(id)}`,
+  );
+  return response.data;
+}
+
 export interface CreateCustomerInput {
   name: string;
   email: string;

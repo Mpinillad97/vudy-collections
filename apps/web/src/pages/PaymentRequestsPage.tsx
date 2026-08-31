@@ -1,11 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { PaymentRequestList } from '../components/payment-requests/PaymentRequestList';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { LoadingState } from '../components/states/LoadingState';
 import { ApiError } from '../lib/api/client';
+import { getCustomers } from '../lib/api/customers';
+import { getInvoices } from '../lib/api/invoices';
 import { getPaymentRequests } from '../lib/api/payment-requests';
+import type { Customer } from '../types/customer';
+import type { Invoice } from '../types/invoice';
 import type { PaymentRequest } from '../types/payment-request';
 
 type Status = 'loading' | 'success' | 'error';
@@ -13,13 +18,24 @@ type Status = 'loading' | 'success' | 'error';
 export function PaymentRequestsPage() {
   const [status, setStatus] = useState<Status>('loading');
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const loadPaymentRequests = useCallback(async () => {
+  // Customer/Invoice context for each Payment Request is resolved client-side
+  // from the two lists we already have endpoints for — no new backend
+  // endpoint needed just to label a table.
+  const load = useCallback(async () => {
     setStatus('loading');
     try {
-      const data = await getPaymentRequests();
-      setPaymentRequests(data);
+      const [paymentRequestsData, invoicesData, customersData] = await Promise.all([
+        getPaymentRequests(),
+        getInvoices(),
+        getCustomers(),
+      ]);
+      setPaymentRequests(paymentRequestsData);
+      setInvoices(invoicesData);
+      setCustomers(customersData);
       setStatus('success');
     } catch (error) {
       setErrorMessage(
@@ -30,14 +46,30 @@ export function PaymentRequestsPage() {
   }, []);
 
   useEffect(() => {
-    loadPaymentRequests();
-  }, [loadPaymentRequests]);
+    load();
+  }, [load]);
+
+  const invoicesById = useMemo(() => {
+    const map = new Map<string, Invoice>();
+    for (const invoice of invoices) {
+      map.set(invoice.id, invoice);
+    }
+    return map;
+  }, [invoices]);
+
+  const customersById = useMemo(() => {
+    const map = new Map<string, Customer>();
+    for (const customer of customers) {
+      map.set(customer.id, customer);
+    }
+    return map;
+  }, [customers]);
 
   return (
     <div>
       <PageHeader
-        title="Payment Requests"
-        description="Payment requests created through Vudy."
+        title="Payment requests"
+        description="Every collection that has been handed off to Vudy's payment infrastructure."
       />
 
       {status === 'loading' ? <LoadingState /> : null}
@@ -45,11 +77,20 @@ export function PaymentRequestsPage() {
       {status === 'success' && paymentRequests.length === 0 ? (
         <EmptyState
           title="No payment requests yet"
-          description="Payment requests created from an invoice will appear here."
+          description="Create a payment request from an outstanding invoice when you're ready to collect."
+          action={
+            <Link to="/invoices" className="text-sm font-medium text-slate-900 underline hover:no-underline">
+              View invoices →
+            </Link>
+          }
         />
       ) : null}
       {status === 'success' && paymentRequests.length > 0 ? (
-        <PaymentRequestList paymentRequests={paymentRequests} />
+        <PaymentRequestList
+          paymentRequests={paymentRequests}
+          invoicesById={invoicesById}
+          customersById={customersById}
+        />
       ) : null}
     </div>
   );

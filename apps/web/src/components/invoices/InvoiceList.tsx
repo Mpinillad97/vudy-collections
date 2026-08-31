@@ -16,8 +16,7 @@ export function InvoiceList({ invoices, customersById }: InvoiceListProps) {
           <tr>
             <th scope="col" className="px-4 py-3">Invoice</th>
             <th scope="col" className="px-4 py-3">Customer</th>
-            <th scope="col" className="px-4 py-3">Amount</th>
-            <th scope="col" className="px-4 py-3">Currency</th>
+            <th scope="col" className="px-4 py-3">Amount due</th>
             <th scope="col" className="px-4 py-3">Due date</th>
           </tr>
         </thead>
@@ -32,8 +31,9 @@ export function InvoiceList({ invoices, customersById }: InvoiceListProps) {
               <td className="px-4 py-3 text-slate-600">
                 {customersById.get(invoice.customerId)?.name ?? invoice.customerId}
               </td>
-              <td className="px-4 py-3 text-slate-600">{formatAmount(invoice.amount)}</td>
-              <td className="px-4 py-3 text-slate-600">{invoice.currency}</td>
+              <td className="px-4 py-3 text-slate-600">
+                {formatAmount(invoice.amount)} {invoice.currency}
+              </td>
               <td className="px-4 py-3 text-slate-500">{formatDate(invoice.dueDate)}</td>
             </tr>
           ))}

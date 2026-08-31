@@ -74,7 +74,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="pr-chain" className="block text-sm font-medium text-slate-700">
-            Chain
+            Payment network
           </label>
           <input
             id="pr-chain"
@@ -96,7 +96,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
 
         <div>
           <label htmlFor="pr-token" className="block text-sm font-medium text-slate-700">
-            Token
+            Payment token
           </label>
           <input
             id="pr-token"
@@ -119,7 +119,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
 
       <div>
         <Button type="submit" disabled={submitting}>
-          {submitting ? 'Creating…' : 'Create Payment Request'}
+          {submitting ? 'Sending…' : 'Send payment request'}
         </Button>
       </div>
 

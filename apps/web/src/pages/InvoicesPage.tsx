@@ -70,7 +70,7 @@ export function InvoicesPage() {
 
   function handleCreated(invoice: Invoice) {
     setIsFormOpen(false);
-    setSuccessMessage(`Invoice "${invoice.number}" was created.`);
+    setSuccessMessage(`Invoice created — "${invoice.number}" is ready to collect.`);
     loadInvoices();
   }
 
@@ -78,7 +78,7 @@ export function InvoicesPage() {
     <div>
       <PageHeader
         title="Invoices"
-        description="Invoices issued to your customers."
+        description="Outstanding payment obligations owed by your customers."
         action={
           <Button variant={isFormOpen ? 'secondary' : 'primary'} onClick={handleToggleForm}>
             {isFormOpen ? 'Cancel' : 'New invoice'}
@@ -103,7 +103,7 @@ export function InvoicesPage() {
       {invoiceStatus === 'success' && invoices.length === 0 ? (
         <EmptyState
           title="No invoices yet"
-          description="Create your first invoice to get started."
+          description="Create an invoice for a customer to start a collection."
         />
       ) : null}
       {invoiceStatus === 'success' && invoices.length > 0 ? (
