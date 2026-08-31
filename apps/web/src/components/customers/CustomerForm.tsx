@@ -7,7 +7,7 @@ import type { Customer } from '../../types/customer';
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const INPUT_CLASSNAME =
-  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400';
+  'mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700 disabled:bg-stone-100 disabled:text-stone-400';
 
 interface FieldErrors {
   name?: string;

@@ -65,7 +65,7 @@ export function DashboardPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
+        <p className="text-xs font-semibold uppercase tracking-wide text-teal-700">
           Resumen de cobranzas
         </p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">Vudy Collections</h1>
@@ -76,13 +76,13 @@ export function DashboardPage() {
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             to="/invoices"
-            className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+            className="inline-flex items-center justify-center rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-900"
           >
             Ver facturas
           </Link>
           <Link
             to="/customers"
-            className="inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+            className="inline-flex items-center justify-center rounded-md border border-stone-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-stone-100"
           >
             Ver clientes
           </Link>
@@ -96,8 +96,8 @@ export function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {metrics.map((metric) => (
             <Link key={metric.label} to={metric.to} className="group block">
-              <Card className="h-full transition-colors group-hover:border-indigo-200 group-hover:shadow-md">
-                <p className="text-3xl font-semibold tracking-tight text-indigo-600">{metric.value}</p>
+              <Card className="h-full transition-colors group-hover:border-teal-200 group-hover:shadow-md">
+                <p className="text-3xl font-semibold tracking-tight text-teal-700">{metric.value}</p>
                 <p className="mt-1 text-sm text-slate-600">{metric.label}</p>
               </Card>
             </Link>

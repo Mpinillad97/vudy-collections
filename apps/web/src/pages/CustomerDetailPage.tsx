@@ -78,7 +78,7 @@ export function CustomerDetailPage() {
           customer ? (
             <Link
               to={`/invoices?customerId=${customer.id}`}
-              className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
+              className="inline-flex items-center justify-center rounded-md bg-teal-800 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-900"
             >
               Crear factura
             </Link>
@@ -117,7 +117,7 @@ export function CustomerDetailPage() {
                   action={
                     <Link
                       to="/invoices"
-                      className="text-sm font-medium text-indigo-600 underline hover:no-underline"
+                      className="text-sm font-medium text-teal-700 underline hover:no-underline"
                     >
                       Ir a Facturas →
                     </Link>
@@ -125,9 +125,9 @@ export function CustomerDetailPage() {
                 />
               </div>
             ) : (
-              <div className="mt-4 overflow-x-auto rounded-lg border border-slate-200">
-                <table className="min-w-full divide-y divide-slate-200 text-sm">
-                  <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+              <div className="mt-4 overflow-x-auto rounded-lg border border-stone-200">
+                <table className="min-w-full divide-y divide-stone-200 text-sm">
+                  <thead className="bg-stone-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     <tr>
                       <th scope="col" className="px-4 py-3">
                         Factura
@@ -148,7 +148,7 @@ export function CustomerDetailPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {invoices.map((invoice) => (
-                      <tr key={invoice.id} className="transition-colors hover:bg-slate-50">
+                      <tr key={invoice.id} className="transition-colors hover:bg-stone-100">
                         <td className="px-4 py-3 font-medium text-slate-900">
                           <Link to={`/invoices/${invoice.id}`} className="hover:underline">
                             {invoice.number}
@@ -166,7 +166,7 @@ export function CustomerDetailPage() {
                         <td className="px-4 py-3 text-right">
                           <Link
                             to={`/invoices/${invoice.id}`}
-                            className="text-sm font-medium text-indigo-600 hover:underline"
+                            className="text-sm font-medium text-teal-700 hover:underline"
                           >
                             Ver detalles →
                           </Link>

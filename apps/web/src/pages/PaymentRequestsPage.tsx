@@ -79,7 +79,7 @@ export function PaymentRequestsPage() {
           title="Aún no hay solicitudes de pago"
           description="Crea una solicitud de pago desde una factura pendiente cuando quieras iniciar el cobro."
           action={
-            <Link to="/invoices" className="text-sm font-medium text-indigo-600 underline hover:no-underline">
+            <Link to="/invoices" className="text-sm font-medium text-teal-700 underline hover:no-underline">
               Ver facturas →
             </Link>
           }

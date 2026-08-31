@@ -10,7 +10,7 @@ const NAV_ITEMS = [
 
 function navLinkClassName(isActive: boolean): string {
   return `block rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-    isActive ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+    isActive ? 'bg-teal-800 text-white' : 'text-slate-600 hover:bg-stone-100 hover:text-slate-900'
   }`;
 }
 
@@ -19,7 +19,7 @@ function BrandMark() {
     <span className="flex items-center gap-2">
       <span
         aria-hidden="true"
-        className="flex h-7 w-7 items-center justify-center rounded-md bg-indigo-600 text-sm font-bold text-white"
+        className="flex h-7 w-7 items-center justify-center rounded-md bg-teal-800 text-sm font-bold text-white"
       >
         V
       </span>
@@ -32,15 +32,15 @@ export function AppLayout() {
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
+    <div className="min-h-screen bg-stone-50 text-slate-900">
+      <header className="flex items-center justify-between border-b border-stone-200 bg-white px-4 py-3 lg:hidden">
         <BrandMark />
         <button
           type="button"
           aria-expanded={isMobileNavOpen}
           aria-controls="mobile-nav"
           onClick={() => setIsMobileNavOpen((open) => !open)}
-          className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+          className="rounded-md border border-stone-300 px-3 py-1.5 text-sm font-medium text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-700"
         >
           Menú
         </button>
@@ -50,7 +50,7 @@ export function AppLayout() {
         <nav
           id="mobile-nav"
           aria-label="Navegación principal"
-          className="border-b border-slate-200 bg-white px-4 py-2 lg:hidden"
+          className="border-b border-stone-200 bg-white px-4 py-2 lg:hidden"
         >
           <ul className="flex flex-col gap-1">
             {NAV_ITEMS.map((item) => (

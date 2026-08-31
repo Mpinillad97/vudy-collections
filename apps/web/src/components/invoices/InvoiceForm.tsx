@@ -2,17 +2,17 @@ import { useState, type FormEvent } from 'react';
 import { Button } from '../ui/Button';
 import { ApiError } from '../../lib/api/client';
 import { createInvoice } from '../../lib/api/invoices';
+import { CURRENCY_OPTIONS } from '../../lib/vudyOptions';
 import type { Customer } from '../../types/customer';
 import type { Invoice } from '../../types/invoice';
 
 const INPUT_CLASSNAME =
-  'mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400';
+  'mt-1 w-full rounded-md border border-stone-300 px-3 py-2 text-sm text-slate-900 focus:border-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-700 disabled:bg-stone-100 disabled:text-stone-400';
 
 interface FieldErrors {
   customerId?: string;
   number?: string;
   amount?: string;
-  currency?: string;
   dueDate?: string;
 }
 
@@ -35,7 +35,7 @@ export function InvoiceForm({
   const [customerId, setCustomerId] = useState(initialCustomerId);
   const [number, setNumber] = useState('');
   const [amount, setAmount] = useState('');
-  const [currency, setCurrency] = useState('');
+  const [currency, setCurrency] = useState(CURRENCY_OPTIONS[0].value);
   const [dueDate, setDueDate] = useState('');
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [submitting, setSubmitting] = useState(false);
@@ -59,10 +59,6 @@ export function InvoiceForm({
       errors.amount = 'Ingresa un monto positivo.';
     }
 
-    if (!currency.trim()) {
-      errors.currency = 'La moneda es obligatoria.';
-    }
-
     if (!dueDate || Number.isNaN(new Date(dueDate).getTime())) {
       errors.dueDate = 'Ingresa una fecha de vencimiento válida.';
     }
@@ -84,13 +80,13 @@ export function InvoiceForm({
         customerId,
         number: number.trim(),
         amount: Number(amount),
-        currency: currency.trim(),
+        currency,
         dueDate,
       });
       setCustomerId('');
       setNumber('');
       setAmount('');
-      setCurrency('');
+      setCurrency(CURRENCY_OPTIONS[0].value);
       setDueDate('');
       setFieldErrors({});
       onCreated(invoice);
@@ -190,22 +186,19 @@ export function InvoiceForm({
           <label htmlFor="invoice-currency" className="block text-sm font-medium text-slate-700">
             Moneda
           </label>
-          <input
+          <select
             id="invoice-currency"
-            type="text"
             value={currency}
             onChange={(event) => setCurrency(event.target.value)}
-            placeholder="USD"
             disabled={submitting}
-            aria-invalid={fieldErrors.currency ? true : undefined}
-            aria-describedby={fieldErrors.currency ? 'invoice-currency-error' : undefined}
             className={INPUT_CLASSNAME}
-          />
-          {fieldErrors.currency ? (
-            <p id="invoice-currency-error" className="mt-1 text-sm text-red-600">
-              {fieldErrors.currency}
-            </p>
-          ) : null}
+          >
+            {CURRENCY_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

@@ -13,9 +13,9 @@ interface InvoiceListProps {
 
 export function InvoiceList({ invoices, customersById, paymentRequestsByInvoiceId }: InvoiceListProps) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
-      <table className="min-w-full divide-y divide-slate-200 text-sm">
-        <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
+    <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white">
+      <table className="min-w-full divide-y divide-stone-200 text-sm">
+        <thead className="bg-stone-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
           <tr>
             <th scope="col" className="px-4 py-3">Factura</th>
             <th scope="col" className="px-4 py-3">Cliente</th>
@@ -32,7 +32,7 @@ export function InvoiceList({ invoices, customersById, paymentRequestsByInvoiceI
             const customer = customersById.get(invoice.customerId);
 
             return (
-              <tr key={invoice.id} className="transition-colors hover:bg-slate-50">
+              <tr key={invoice.id} className="transition-colors hover:bg-stone-100">
                 <td className="px-4 py-3 font-medium text-slate-900">
                   <Link to={`/invoices/${invoice.id}`} className="hover:underline">
                     {invoice.number}
@@ -57,7 +57,7 @@ export function InvoiceList({ invoices, customersById, paymentRequestsByInvoiceI
                 <td className="px-4 py-3 text-right">
                   <Link
                     to={`/invoices/${invoice.id}`}
-                    className="text-sm font-medium text-indigo-600 hover:underline"
+                    className="text-sm font-medium text-teal-700 hover:underline"
                   >
                     Ver detalles →
                   </Link>

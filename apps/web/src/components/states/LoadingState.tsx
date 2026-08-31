@@ -6,11 +6,11 @@ export function LoadingState({ message = 'Cargando…' }: LoadingStateProps) {
   return (
     <div
       role="status"
-      className="flex flex-col items-center justify-center gap-3 rounded-lg border border-slate-200 bg-white px-6 py-16 text-center"
+      className="flex flex-col items-center justify-center gap-3 rounded-lg border border-stone-200 bg-white px-6 py-16 text-center"
     >
       <span
         aria-hidden="true"
-        className="h-6 w-6 animate-spin rounded-full border-2 border-slate-200 border-t-indigo-600"
+        className="h-6 w-6 animate-spin rounded-full border-2 border-stone-200 border-t-teal-800"
       />
       <p className="text-sm text-slate-500">{message}</p>
     </div>
