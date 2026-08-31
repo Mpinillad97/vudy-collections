@@ -7,11 +7,10 @@
     "apps/web"
   ],
   "scripts": {
-    "postinstall": "prisma generate",
     "dev:web": "npm run dev --workspace apps/web",
     "dev:api": "npm run start:dev --workspace apps/api",
     "build:web": "npm run build --workspace apps/web",
-    "build:api": "npm run build --workspace apps/api",
+    "build:api": "npm run prisma:generate && npm run build --workspace apps/api",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
   },
