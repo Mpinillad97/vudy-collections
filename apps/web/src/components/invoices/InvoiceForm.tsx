@@ -22,10 +22,17 @@ interface InvoiceFormProps {
   customers: Customer[];
   customersStatus: CustomersStatus;
   onCreated: (invoice: Invoice) => void;
+  /** Pre-selects the customer, e.g. when arriving from that customer's detail page. */
+  initialCustomerId?: string;
 }
 
-export function InvoiceForm({ customers, customersStatus, onCreated }: InvoiceFormProps) {
-  const [customerId, setCustomerId] = useState('');
+export function InvoiceForm({
+  customers,
+  customersStatus,
+  onCreated,
+  initialCustomerId = '',
+}: InvoiceFormProps) {
+  const [customerId, setCustomerId] = useState(initialCustomerId);
   const [number, setNumber] = useState('');
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState('');

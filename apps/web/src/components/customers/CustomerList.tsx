@@ -15,6 +15,9 @@ export function CustomerList({ customers }: CustomerListProps) {
             <th scope="col" className="px-4 py-3">Customer</th>
             <th scope="col" className="px-4 py-3">Contact</th>
             <th scope="col" className="px-4 py-3">Customer since</th>
+            <th scope="col" className="px-4 py-3">
+              <span className="sr-only">Action</span>
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -27,6 +30,14 @@ export function CustomerList({ customers }: CustomerListProps) {
               </td>
               <td className="px-4 py-3 text-slate-600">{customer.email}</td>
               <td className="px-4 py-3 text-slate-500">{formatDate(customer.createdAt)}</td>
+              <td className="px-4 py-3 text-right">
+                <Link
+                  to={`/customers/${customer.id}`}
+                  className="text-sm font-medium text-indigo-600 hover:underline"
+                >
+                  View invoices →
+                </Link>
+              </td>
             </tr>
           ))}
         </tbody>

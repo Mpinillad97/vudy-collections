@@ -40,7 +40,13 @@ export function PaymentRequestList({
             return (
               <tr key={paymentRequest.id} className="transition-colors hover:bg-slate-50">
                 <td className="px-4 py-3 font-medium text-slate-900">
-                  {customer?.name ?? <span className="text-slate-400">—</span>}
+                  {customer ? (
+                    <Link to={`/customers/${customer.id}`} className="hover:underline">
+                      {customer.name}
+                    </Link>
+                  ) : (
+                    <span className="text-slate-400">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-slate-600">
                   {invoice && paymentRequest.invoiceId ? (

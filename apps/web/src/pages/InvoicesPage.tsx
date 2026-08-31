@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -17,6 +18,12 @@ import type { Invoice } from '../types/invoice';
 type Status = 'loading' | 'success' | 'error';
 
 export function InvoicesPage() {
+  // Arriving from a Customer's "Create invoice" CTA (?customerId=...) opens
+  // the form pre-scoped to that customer instead of dropping the user back
+  // into a blank list.
+  const [searchParams] = useSearchParams();
+  const initialCustomerId = searchParams.get('customerId') ?? undefined;
+
   const [invoiceStatus, setInvoiceStatus] = useState<Status>('loading');
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [invoiceError, setInvoiceError] = useState('');
@@ -24,7 +31,7 @@ export function InvoicesPage() {
   const [customersStatus, setCustomersStatus] = useState<Status>('loading');
   const [customers, setCustomers] = useState<Customer[]>([]);
 
-  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isFormOpen, setIsFormOpen] = useState(Boolean(initialCustomerId));
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const loadInvoices = useCallback(async () => {
@@ -94,6 +101,7 @@ export function InvoicesPage() {
             customers={customers}
             customersStatus={customersStatus}
             onCreated={handleCreated}
+            initialCustomerId={initialCustomerId}
           />
         </Card>
       ) : null}
