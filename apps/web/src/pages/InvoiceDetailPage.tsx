@@ -4,6 +4,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PageHeader } from '../components/PageHeader';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { CollectionStatusBadge } from '../components/invoices/CollectionStatusBadge';
 import { CreatePaymentRequestForm } from '../components/payment-requests/CreatePaymentRequestForm';
 import { StatusBadge } from '../components/payment-requests/StatusBadge';
 import { EmptyState } from '../components/states/EmptyState';
@@ -27,13 +28,6 @@ function Field({ label, value }: { label: string; value: string }) {
       <dd className="mt-1 break-words text-sm text-slate-900">{value}</dd>
     </div>
   );
-}
-
-/** Awaiting collection = no payment request yet; otherwise the real Vudy status, verbatim. */
-function invoicePaymentStatusLabel(paymentRequest: PaymentRequest | null): string {
-  if (!paymentRequest) return 'Awaiting collection';
-  if (!paymentRequest.status) return 'Payment request sent';
-  return paymentRequest.status.charAt(0).toUpperCase() + paymentRequest.status.slice(1);
 }
 
 export function InvoiceDetailPage() {
@@ -155,9 +149,7 @@ export function InvoiceDetailPage() {
               <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
                 Payment status
               </span>
-              <span className="text-sm font-medium text-slate-900">
-                {invoicePaymentStatusLabel(invoice.paymentRequest)}
-              </span>
+              <CollectionStatusBadge paymentRequest={invoice.paymentRequest} />
             </div>
 
             <dl className="mt-4 grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 sm:grid-cols-2">

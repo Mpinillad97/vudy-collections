@@ -1,17 +1,20 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { PageHeader } from '../components/PageHeader';
 import { Card } from '../components/ui/Card';
+import { CollectionStatusBadge } from '../components/invoices/CollectionStatusBadge';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { LoadingState } from '../components/states/LoadingState';
 import { ApiError } from '../lib/api/client';
 import { getCustomer } from '../lib/api/customers';
 import { getInvoices } from '../lib/api/invoices';
+import { getPaymentRequests } from '../lib/api/payment-requests';
 import { formatAmount, formatDate } from '../lib/format';
 import type { Customer } from '../types/customer';
 import type { Invoice } from '../types/invoice';
+import type { PaymentRequest } from '../types/payment-request';
 
 type Status = 'loading' | 'success' | 'error';
 
@@ -20,11 +23,13 @@ export function CustomerDetailPage() {
   const [status, setStatus] = useState<Status>('loading');
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
   const [errorMessage, setErrorMessage] = useState('');
 
   // Invoice.customerId already exists on every invoice — filtering the
   // existing list client-side avoids needing a new backend endpoint just to
-  // scope invoices to one customer.
+  // scope invoices to one customer. Payment requests are fetched the same
+  // way so each invoice row can show its real collection status.
   const load = useCallback(async () => {
     if (!id) {
       setErrorMessage('No customer id was provided.');
@@ -34,9 +39,14 @@ export function CustomerDetailPage() {
 
     setStatus('loading');
     try {
-      const [customerData, allInvoices] = await Promise.all([getCustomer(id), getInvoices()]);
+      const [customerData, allInvoices, allPaymentRequests] = await Promise.all([
+        getCustomer(id),
+        getInvoices(),
+        getPaymentRequests(),
+      ]);
       setCustomer(customerData);
       setInvoices(allInvoices.filter((invoice) => invoice.customerId === id));
+      setPaymentRequests(allPaymentRequests);
       setStatus('success');
     } catch (error) {
       setErrorMessage(error instanceof ApiError ? error.message : 'Could not load this customer.');
@@ -47,6 +57,16 @@ export function CustomerDetailPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  const paymentRequestsByInvoiceId = useMemo(() => {
+    const map = new Map<string, PaymentRequest>();
+    for (const paymentRequest of paymentRequests) {
+      if (paymentRequest.invoiceId) {
+        map.set(paymentRequest.invoiceId, paymentRequest);
+      }
+    }
+    return map;
+  }, [paymentRequests]);
 
   return (
     <div>
@@ -116,10 +136,13 @@ export function CustomerDetailPage() {
                         Amount due
                       </th>
                       <th scope="col" className="px-4 py-3">
-                        Currency
+                        Due date
                       </th>
                       <th scope="col" className="px-4 py-3">
-                        Due date
+                        Status
+                      </th>
+                      <th scope="col" className="px-4 py-3">
+                        <span className="sr-only">Action</span>
                       </th>
                     </tr>
                   </thead>
@@ -131,9 +154,23 @@ export function CustomerDetailPage() {
                             {invoice.number}
                           </Link>
                         </td>
-                        <td className="px-4 py-3 text-slate-600">{formatAmount(invoice.amount)}</td>
-                        <td className="px-4 py-3 text-slate-600">{invoice.currency}</td>
+                        <td className="px-4 py-3 text-slate-600">
+                          {formatAmount(invoice.amount)} {invoice.currency}
+                        </td>
                         <td className="px-4 py-3 text-slate-500">{formatDate(invoice.dueDate)}</td>
+                        <td className="px-4 py-3">
+                          <CollectionStatusBadge
+                            paymentRequest={paymentRequestsByInvoiceId.get(invoice.id) ?? null}
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Link
+                            to={`/invoices/${invoice.id}`}
+                            className="text-sm font-medium text-indigo-600 hover:underline"
+                          >
+                            View details →
+                          </Link>
+                        </td>
                       </tr>
                     ))}
                   </tbody>

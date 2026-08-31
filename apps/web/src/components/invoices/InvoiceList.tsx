@@ -2,13 +2,16 @@ import { Link } from 'react-router-dom';
 import { formatAmount, formatDate } from '../../lib/format';
 import type { Customer } from '../../types/customer';
 import type { Invoice } from '../../types/invoice';
+import type { PaymentRequest } from '../../types/payment-request';
+import { CollectionStatusBadge } from './CollectionStatusBadge';
 
 interface InvoiceListProps {
   invoices: Invoice[];
   customersById: Map<string, Customer>;
+  paymentRequestsByInvoiceId: Map<string, PaymentRequest>;
 }
 
-export function InvoiceList({ invoices, customersById }: InvoiceListProps) {
+export function InvoiceList({ invoices, customersById, paymentRequestsByInvoiceId }: InvoiceListProps) {
   return (
     <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
       <table className="min-w-full divide-y divide-slate-200 text-sm">
@@ -18,36 +21,50 @@ export function InvoiceList({ invoices, customersById }: InvoiceListProps) {
             <th scope="col" className="px-4 py-3">Customer</th>
             <th scope="col" className="px-4 py-3">Amount due</th>
             <th scope="col" className="px-4 py-3">Due date</th>
+            <th scope="col" className="px-4 py-3">Status</th>
             <th scope="col" className="px-4 py-3">
               <span className="sr-only">Action</span>
             </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {invoices.map((invoice) => (
-            <tr key={invoice.id} className="transition-colors hover:bg-slate-50">
-              <td className="px-4 py-3 font-medium text-slate-900">
-                <Link to={`/invoices/${invoice.id}`} className="hover:underline">
-                  {invoice.number}
-                </Link>
-              </td>
-              <td className="px-4 py-3 text-slate-600">
-                {customersById.get(invoice.customerId)?.name ?? invoice.customerId}
-              </td>
-              <td className="px-4 py-3 text-slate-600">
-                {formatAmount(invoice.amount)} {invoice.currency}
-              </td>
-              <td className="px-4 py-3 text-slate-500">{formatDate(invoice.dueDate)}</td>
-              <td className="px-4 py-3 text-right">
-                <Link
-                  to={`/invoices/${invoice.id}`}
-                  className="text-sm font-medium text-indigo-600 hover:underline"
-                >
-                  View details →
-                </Link>
-              </td>
-            </tr>
-          ))}
+          {invoices.map((invoice) => {
+            const customer = customersById.get(invoice.customerId);
+
+            return (
+              <tr key={invoice.id} className="transition-colors hover:bg-slate-50">
+                <td className="px-4 py-3 font-medium text-slate-900">
+                  <Link to={`/invoices/${invoice.id}`} className="hover:underline">
+                    {invoice.number}
+                  </Link>
+                </td>
+                <td className="px-4 py-3 text-slate-600">
+                  {customer ? (
+                    <Link to={`/customers/${customer.id}`} className="hover:underline">
+                      {customer.name}
+                    </Link>
+                  ) : (
+                    invoice.customerId
+                  )}
+                </td>
+                <td className="px-4 py-3 text-slate-600">
+                  {formatAmount(invoice.amount)} {invoice.currency}
+                </td>
+                <td className="px-4 py-3 text-slate-500">{formatDate(invoice.dueDate)}</td>
+                <td className="px-4 py-3">
+                  <CollectionStatusBadge paymentRequest={paymentRequestsByInvoiceId.get(invoice.id) ?? null} />
+                </td>
+                <td className="px-4 py-3 text-right">
+                  <Link
+                    to={`/invoices/${invoice.id}`}
+                    className="text-sm font-medium text-indigo-600 hover:underline"
+                  >
+                    View details →
+                  </Link>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

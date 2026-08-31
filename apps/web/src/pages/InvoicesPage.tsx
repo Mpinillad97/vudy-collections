@@ -12,8 +12,10 @@ import { SuccessState } from '../components/states/SuccessState';
 import { ApiError } from '../lib/api/client';
 import { getCustomers } from '../lib/api/customers';
 import { getInvoices } from '../lib/api/invoices';
+import { getPaymentRequests } from '../lib/api/payment-requests';
 import type { Customer } from '../types/customer';
 import type { Invoice } from '../types/invoice';
+import type { PaymentRequest } from '../types/payment-request';
 
 type Status = 'loading' | 'success' | 'error';
 
@@ -30,6 +32,8 @@ export function InvoicesPage() {
 
   const [customersStatus, setCustomersStatus] = useState<Status>('loading');
   const [customers, setCustomers] = useState<Customer[]>([]);
+
+  const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
 
   const [isFormOpen, setIsFormOpen] = useState(Boolean(initialCustomerId));
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -57,10 +61,22 @@ export function InvoicesPage() {
     }
   }, []);
 
+  // Supplementary to the main invoice list — used only to show each
+  // invoice's real collection status, so a failure here shouldn't block the
+  // page the way a failed invoice/customer load does.
+  const loadPaymentRequests = useCallback(async () => {
+    try {
+      setPaymentRequests(await getPaymentRequests());
+    } catch {
+      setPaymentRequests([]);
+    }
+  }, []);
+
   useEffect(() => {
     loadInvoices();
     loadCustomers();
-  }, [loadInvoices, loadCustomers]);
+    loadPaymentRequests();
+  }, [loadInvoices, loadCustomers, loadPaymentRequests]);
 
   const customersById = useMemo(() => {
     const map = new Map<string, Customer>();
@@ -69,6 +85,16 @@ export function InvoicesPage() {
     }
     return map;
   }, [customers]);
+
+  const paymentRequestsByInvoiceId = useMemo(() => {
+    const map = new Map<string, PaymentRequest>();
+    for (const paymentRequest of paymentRequests) {
+      if (paymentRequest.invoiceId) {
+        map.set(paymentRequest.invoiceId, paymentRequest);
+      }
+    }
+    return map;
+  }, [paymentRequests]);
 
   function handleToggleForm() {
     setSuccessMessage(null);
@@ -115,7 +141,11 @@ export function InvoicesPage() {
         />
       ) : null}
       {invoiceStatus === 'success' && invoices.length > 0 ? (
-        <InvoiceList invoices={invoices} customersById={customersById} />
+        <InvoiceList
+          invoices={invoices}
+          customersById={customersById}
+          paymentRequestsByInvoiceId={paymentRequestsByInvoiceId}
+        />
       ) : null}
     </div>
   );
