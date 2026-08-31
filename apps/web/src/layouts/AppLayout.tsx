@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 
 const NAV_ITEMS = [
-  { to: '/', label: 'Dashboard', end: true },
-  { to: '/customers', label: 'Customers', end: false },
-  { to: '/invoices', label: 'Invoices', end: false },
-  { to: '/payment-requests', label: 'Payment Requests', end: false },
+  { to: '/', label: 'Inicio', end: true },
+  { to: '/customers', label: 'Clientes', end: false },
+  { to: '/invoices', label: 'Facturas', end: false },
+  { to: '/payment-requests', label: 'Solicitudes de pago', end: false },
 ] as const;
 
 function navLinkClassName(isActive: boolean): string {
@@ -42,14 +42,14 @@ export function AppLayout() {
           onClick={() => setIsMobileNavOpen((open) => !open)}
           className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
-          Menu
+          Menú
         </button>
       </header>
 
       {isMobileNavOpen ? (
         <nav
           id="mobile-nav"
-          aria-label="Main navigation"
+          aria-label="Navegación principal"
           className="border-b border-slate-200 bg-white px-4 py-2 lg:hidden"
         >
           <ul className="flex flex-col gap-1">
@@ -75,7 +75,7 @@ export function AppLayout() {
             <div className="mb-8 px-2">
               <BrandMark />
             </div>
-            <nav aria-label="Main navigation">
+            <nav aria-label="Navegación principal">
               <ul className="flex flex-col gap-1">
                 {NAV_ITEMS.map((item) => (
                   <li key={item.to}>

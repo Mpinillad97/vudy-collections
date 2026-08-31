@@ -21,14 +21,14 @@ export function PaymentRequestList({
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
           <tr>
-            <th scope="col" className="px-4 py-3">Customer</th>
-            <th scope="col" className="px-4 py-3">Invoice</th>
-            <th scope="col" className="px-4 py-3">Amount</th>
-            <th scope="col" className="px-4 py-3">Network / Token</th>
-            <th scope="col" className="px-4 py-3">Status</th>
-            <th scope="col" className="px-4 py-3">Created</th>
+            <th scope="col" className="px-4 py-3">Cliente</th>
+            <th scope="col" className="px-4 py-3">Factura</th>
+            <th scope="col" className="px-4 py-3">Monto</th>
+            <th scope="col" className="px-4 py-3">Red / Token</th>
+            <th scope="col" className="px-4 py-3">Estado</th>
+            <th scope="col" className="px-4 py-3">Creada</th>
             <th scope="col" className="px-4 py-3">
-              <span className="sr-only">Action</span>
+              <span className="sr-only">Acción</span>
             </th>
           </tr>
         </thead>
@@ -73,7 +73,7 @@ export function PaymentRequestList({
                       to={`/invoices/${paymentRequest.invoiceId}`}
                       className="text-sm font-medium text-indigo-600 hover:underline"
                     >
-                      View invoice →
+                      Ver factura →
                     </Link>
                   ) : null}
                 </td>

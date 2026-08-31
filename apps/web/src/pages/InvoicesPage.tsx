@@ -45,7 +45,7 @@ export function InvoicesPage() {
       setInvoices(data);
       setInvoiceStatus('success');
     } catch (error) {
-      setInvoiceError(error instanceof ApiError ? error.message : 'Could not load invoices.');
+      setInvoiceError(error instanceof ApiError ? error.message : 'No se pudieron cargar las facturas.');
       setInvoiceStatus('error');
     }
   }, []);
@@ -103,18 +103,18 @@ export function InvoicesPage() {
 
   function handleCreated(invoice: Invoice) {
     setIsFormOpen(false);
-    setSuccessMessage(`Invoice created — "${invoice.number}" is ready to collect.`);
+    setSuccessMessage(`Factura creada — "${invoice.number}" lista para gestionar su cobro.`);
     loadInvoices();
   }
 
   return (
     <div>
       <PageHeader
-        title="Invoices"
-        description="Outstanding payment obligations owed by your customers."
+        title="Facturas"
+        description="Obligaciones de pago pendientes de tus clientes."
         action={
           <Button variant={isFormOpen ? 'secondary' : 'primary'} onClick={handleToggleForm}>
-            {isFormOpen ? 'Cancel' : 'New invoice'}
+            {isFormOpen ? 'Cancelar' : 'Crear factura'}
           </Button>
         }
       />
@@ -136,8 +136,8 @@ export function InvoicesPage() {
       {invoiceStatus === 'error' ? <ErrorState message={invoiceError} /> : null}
       {invoiceStatus === 'success' && invoices.length === 0 ? (
         <EmptyState
-          title="No invoices yet"
-          description="Create an invoice for a customer to start a collection."
+          title="Aún no tienes facturas"
+          description="Crea una factura para un cliente y comienza a gestionar su cobro."
         />
       ) : null}
       {invoiceStatus === 'success' && invoices.length > 0 ? (

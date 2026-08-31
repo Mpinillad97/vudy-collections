@@ -17,13 +17,13 @@ export function InvoiceList({ invoices, customersById, paymentRequestsByInvoiceI
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
           <tr>
-            <th scope="col" className="px-4 py-3">Invoice</th>
-            <th scope="col" className="px-4 py-3">Customer</th>
-            <th scope="col" className="px-4 py-3">Amount due</th>
-            <th scope="col" className="px-4 py-3">Due date</th>
-            <th scope="col" className="px-4 py-3">Status</th>
+            <th scope="col" className="px-4 py-3">Factura</th>
+            <th scope="col" className="px-4 py-3">Cliente</th>
+            <th scope="col" className="px-4 py-3">Monto adeudado</th>
+            <th scope="col" className="px-4 py-3">Fecha de vencimiento</th>
+            <th scope="col" className="px-4 py-3">Cobranza</th>
             <th scope="col" className="px-4 py-3">
-              <span className="sr-only">Action</span>
+              <span className="sr-only">Acción</span>
             </th>
           </tr>
         </thead>
@@ -59,7 +59,7 @@ export function InvoiceList({ invoices, customersById, paymentRequestsByInvoiceI
                     to={`/invoices/${invoice.id}`}
                     className="text-sm font-medium text-indigo-600 hover:underline"
                   >
-                    View details →
+                    Ver detalles →
                   </Link>
                 </td>
               </tr>

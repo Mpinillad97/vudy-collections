@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { CollectionStatusBadge } from '../components/invoices/CollectionStatusBadge';
 import { CreatePaymentRequestForm } from '../components/payment-requests/CreatePaymentRequestForm';
-import { StatusBadge } from '../components/payment-requests/StatusBadge';
+import { StatusBadge, translateVudyStatus } from '../components/payment-requests/StatusBadge';
 import { EmptyState } from '../components/states/EmptyState';
 import { ErrorState } from '../components/states/ErrorState';
 import { LoadingState } from '../components/states/LoadingState';
@@ -43,7 +43,7 @@ export function InvoiceDetailPage() {
 
   const loadInvoice = useCallback(async () => {
     if (!id) {
-      setErrorMessage('No invoice id was provided.');
+      setErrorMessage('No se proporcionó un identificador de factura.');
       setStatus('error');
       return;
     }
@@ -62,7 +62,7 @@ export function InvoiceDetailPage() {
         setCustomer(null);
       }
     } catch (error) {
-      setErrorMessage(error instanceof ApiError ? error.message : 'Could not load this invoice.');
+      setErrorMessage(error instanceof ApiError ? error.message : 'No se pudo cargar esta factura.');
       setStatus('error');
     }
   }, [id]);
@@ -75,14 +75,14 @@ export function InvoiceDetailPage() {
   // instead of fabricating the merged object locally, per M3.3 guidance —
   // GET /invoices/:id is the definitive source of truth.
   async function handlePaymentRequestCreated(paymentRequest: PaymentRequest) {
-    setPaymentRequestMessage('Payment request created. Send the payment page below to your customer.');
+    setPaymentRequestMessage('Solicitud de pago creada. Comparte la página de pago con tu cliente.');
     if (!id) return;
     try {
       const fresh = await getInvoice(id);
       setInvoice(fresh);
     } catch {
       setPaymentRequestMessage(
-        `Payment request ${paymentRequest.vudyRequestId} was created, but the page could not refresh automatically. Reload to see it.`,
+        `La solicitud de pago ${paymentRequest.vudyRequestId} fue creada, pero la página no se pudo actualizar automáticamente. Recarga para verla.`,
       );
     }
   }
@@ -99,10 +99,11 @@ export function InvoiceDetailPage() {
     try {
       const updated = await checkInvoicePaymentRequestStatus(id);
       setInvoice((current) => (current ? { ...current, paymentRequest: updated } : current));
-      setStatusCheckMessage(`Status updated: ${updated.status ?? 'unknown'}.`);
+      const translatedStatus = updated.status ? translateVudyStatus(updated.status) : 'desconocido';
+      setStatusCheckMessage(`Estado actualizado: ${translatedStatus}.`);
     } catch (error) {
       setStatusCheckError(
-        error instanceof ApiError ? error.message : 'Could not check the payment request status.',
+        error instanceof ApiError ? error.message : 'No se pudo actualizar el estado de la solicitud de pago.',
       );
     } finally {
       setCheckingStatus(false);
@@ -111,21 +112,21 @@ export function InvoiceDetailPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: 'Invoices', to: '/invoices' }, { label: invoice?.number ?? 'Invoice' }]} />
+      <Breadcrumbs items={[{ label: 'Facturas', to: '/invoices' }, { label: invoice?.number ?? 'Factura' }]} />
       <PageHeader
-        title={invoice ? `Invoice ${invoice.number}` : 'Invoice'}
-        description="Commercial detail and collection status for this invoice."
+        title={invoice ? `Factura ${invoice.number}` : 'Factura'}
+        description="Detalle comercial y estado de cobro de esta factura."
       />
 
       {status === 'loading' ? <LoadingState /> : null}
-      {status === 'error' ? <ErrorState title="Could not load invoice" message={errorMessage} /> : null}
+      {status === 'error' ? <ErrorState title="No se pudo cargar la factura" message={errorMessage} /> : null}
 
       {status === 'success' && invoice ? (
         <div className="flex flex-col gap-4">
           <Card>
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Owed by</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Debe</p>
                 {customer ? (
                   <Link
                     to={`/customers/${customer.id}`}
@@ -138,7 +139,7 @@ export function InvoiceDetailPage() {
                 )}
               </div>
               <div className="text-right">
-                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Amount due</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Monto adeudado</p>
                 <p className="mt-1 text-lg font-semibold text-slate-900">
                   {formatAmount(invoice.amount)} {invoice.currency}
                 </p>
@@ -147,19 +148,19 @@ export function InvoiceDetailPage() {
 
             <div className="mt-4 flex items-center gap-2 border-t border-slate-100 pt-4">
               <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                Payment status
+                Estado de cobro
               </span>
               <CollectionStatusBadge paymentRequest={invoice.paymentRequest} />
             </div>
 
             <dl className="mt-4 grid grid-cols-1 gap-4 border-t border-slate-100 pt-4 sm:grid-cols-2">
-              <Field label="Due date" value={formatDate(invoice.dueDate)} />
-              <Field label="Invoiced on" value={formatDate(invoice.createdAt)} />
+              <Field label="Fecha de vencimiento" value={formatDate(invoice.dueDate)} />
+              <Field label="Fecha de factura" value={formatDate(invoice.createdAt)} />
             </dl>
           </Card>
 
           <Card>
-            <h2 className="text-sm font-semibold text-slate-900">Collection</h2>
+            <h2 className="text-sm font-semibold text-slate-900">Cobranza</h2>
 
             {paymentRequestMessage ? (
               <SuccessState message={paymentRequestMessage} className="mt-4" />
@@ -175,17 +176,17 @@ export function InvoiceDetailPage() {
               <div className="mt-4 flex flex-col gap-4">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
-                    <p className="text-sm text-slate-600">Payment request created through Vudy.</p>
+                    <p className="text-sm text-slate-600">Solicitud de pago creada a través de Vudy.</p>
                     <p className="mt-1 text-xs text-slate-500">
-                      Vudy request: <span className="font-mono">{invoice.paymentRequest.vudyRequestId}</span>
+                      Solicitud Vudy: <span className="font-mono">{invoice.paymentRequest.vudyRequestId}</span>
                     </p>
                   </div>
                   <StatusBadge status={invoice.paymentRequest.status} />
                 </div>
 
                 <dl className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                  <Field label="Amount requested" value={formatAmount(invoice.paymentRequest.amount)} />
-                  <Field label="Network" value={invoice.paymentRequest.requestedChain} />
+                  <Field label="Monto solicitado" value={formatAmount(invoice.paymentRequest.amount)} />
+                  <Field label="Red" value={invoice.paymentRequest.requestedChain} />
                   <Field label="Token" value={invoice.paymentRequest.requestedToken} />
                 </dl>
 
@@ -196,7 +197,7 @@ export function InvoiceDetailPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-800"
                   >
-                    Open payment page ↗
+                    Abrir página de pago ↗
                   </a>
                   <Button
                     type="button"
@@ -204,20 +205,20 @@ export function InvoiceDetailPage() {
                     onClick={handleCheckStatus}
                     disabled={checkingStatus}
                   >
-                    {checkingStatus ? 'Checking…' : 'Refresh status'}
+                    {checkingStatus ? 'Actualizando…' : 'Actualizar estado'}
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="mt-4 flex flex-col gap-4">
                 <EmptyState
-                  title="This invoice hasn't been sent for collection yet"
-                  description="Create a payment request to hand this invoice off to Vudy's payment infrastructure — your customer pays through Vudy, and you track the outcome here."
+                  title="Esta factura aún no tiene una solicitud de pago"
+                  description="Crea una solicitud de pago para gestionar el cobro a través de la infraestructura de Vudy — tu cliente paga a través de Vudy y tú das seguimiento al resultado aquí."
                 />
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">Create payment request</h3>
+                  <h3 className="text-sm font-semibold text-slate-900">Crear solicitud de pago</h3>
                   <p className="mt-1 text-sm text-slate-500">
-                    Choose the payment network and token your customer will use to pay.
+                    Elige la red y el token que tu cliente usará para pagar.
                   </p>
                   <div className="mt-3">
                     <CreatePaymentRequestForm
@@ -231,7 +232,7 @@ export function InvoiceDetailPage() {
           </Card>
 
           <Link to="/invoices" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            ← Back to invoices
+            ← Volver a Facturas
           </Link>
         </div>
       ) : null}

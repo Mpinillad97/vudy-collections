@@ -32,10 +32,10 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
   function validate(): boolean {
     const errors: FieldErrors = {};
     if (!requestedChain.trim()) {
-      errors.requestedChain = 'Chain is required.';
+      errors.requestedChain = 'La red es obligatoria.';
     }
     if (!requestedToken.trim()) {
-      errors.requestedToken = 'Token is required.';
+      errors.requestedToken = 'El token es obligatorio.';
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -62,7 +62,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
       onCreated(paymentRequest);
     } catch (error) {
       setSubmitError(
-        error instanceof ApiError ? error.message : 'Could not create the payment request.',
+        error instanceof ApiError ? error.message : 'No se pudo crear la solicitud de pago.',
       );
     } finally {
       setSubmitting(false);
@@ -74,7 +74,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="pr-chain" className="block text-sm font-medium text-slate-700">
-            Payment network
+            Red de pago
           </label>
           <input
             id="pr-chain"
@@ -96,7 +96,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
 
         <div>
           <label htmlFor="pr-token" className="block text-sm font-medium text-slate-700">
-            Payment token
+            Token de pago
           </label>
           <input
             id="pr-token"
@@ -119,7 +119,7 @@ export function CreatePaymentRequestForm({ invoiceId, onCreated }: CreatePayment
 
       <div>
         <Button type="submit" disabled={submitting}>
-          {submitting ? 'Sending…' : 'Send payment request'}
+          {submitting ? 'Enviando…' : 'Crear solicitud de pago'}
         </Button>
       </div>
 

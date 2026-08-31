@@ -32,7 +32,7 @@ export function CustomerDetailPage() {
   // way so each invoice row can show its real collection status.
   const load = useCallback(async () => {
     if (!id) {
-      setErrorMessage('No customer id was provided.');
+      setErrorMessage('No se proporcionó un identificador de cliente.');
       setStatus('error');
       return;
     }
@@ -49,7 +49,7 @@ export function CustomerDetailPage() {
       setPaymentRequests(allPaymentRequests);
       setStatus('success');
     } catch (error) {
-      setErrorMessage(error instanceof ApiError ? error.message : 'Could not load this customer.');
+      setErrorMessage(error instanceof ApiError ? error.message : 'No se pudo cargar este cliente.');
       setStatus('error');
     }
   }, [id]);
@@ -70,36 +70,36 @@ export function CustomerDetailPage() {
 
   return (
     <div>
-      <Breadcrumbs items={[{ label: 'Customers', to: '/customers' }, { label: customer?.name ?? 'Customer' }]} />
+      <Breadcrumbs items={[{ label: 'Clientes', to: '/customers' }, { label: customer?.name ?? 'Cliente' }]} />
       <PageHeader
-        title={customer ? customer.name : 'Customer'}
-        description="Contact details and outstanding invoices for this customer."
+        title={customer ? customer.name : 'Cliente'}
+        description="Información de contacto y facturas pendientes de este cliente."
         action={
           customer ? (
             <Link
               to={`/invoices?customerId=${customer.id}`}
               className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
             >
-              Create invoice
+              Crear factura
             </Link>
           ) : null
         }
       />
 
       {status === 'loading' ? <LoadingState /> : null}
-      {status === 'error' ? <ErrorState title="Could not load customer" message={errorMessage} /> : null}
+      {status === 'error' ? <ErrorState title="No se pudo cargar el cliente" message={errorMessage} /> : null}
 
       {status === 'success' && customer ? (
         <div className="flex flex-col gap-4">
           <Card>
             <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Contact</dt>
+                <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">Contacto</dt>
                 <dd className="mt-1 text-sm text-slate-900">{customer.email}</dd>
               </div>
               <div>
                 <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">
-                  Customer since
+                  Cliente desde
                 </dt>
                 <dd className="mt-1 text-sm text-slate-900">{formatDate(customer.createdAt)}</dd>
               </div>
@@ -107,19 +107,19 @@ export function CustomerDetailPage() {
           </Card>
 
           <Card>
-            <h2 className="text-sm font-semibold text-slate-900">Invoices</h2>
+            <h2 className="text-sm font-semibold text-slate-900">Facturas</h2>
 
             {invoices.length === 0 ? (
               <div className="mt-4">
                 <EmptyState
-                  title="No invoices yet"
-                  description="Create an invoice for this customer to start a collection."
+                  title="Este cliente aún no tiene facturas"
+                  description="Crea una factura para este cliente y comienza a gestionar su cobro."
                   action={
                     <Link
                       to="/invoices"
                       className="text-sm font-medium text-indigo-600 underline hover:no-underline"
                     >
-                      Go to Invoices →
+                      Ir a Facturas →
                     </Link>
                   }
                 />
@@ -130,19 +130,19 @@ export function CustomerDetailPage() {
                   <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
                     <tr>
                       <th scope="col" className="px-4 py-3">
-                        Invoice
+                        Factura
                       </th>
                       <th scope="col" className="px-4 py-3">
-                        Amount due
+                        Monto adeudado
                       </th>
                       <th scope="col" className="px-4 py-3">
-                        Due date
+                        Fecha de vencimiento
                       </th>
                       <th scope="col" className="px-4 py-3">
-                        Status
+                        Cobranza
                       </th>
                       <th scope="col" className="px-4 py-3">
-                        <span className="sr-only">Action</span>
+                        <span className="sr-only">Acción</span>
                       </th>
                     </tr>
                   </thead>
@@ -168,7 +168,7 @@ export function CustomerDetailPage() {
                             to={`/invoices/${invoice.id}`}
                             className="text-sm font-medium text-indigo-600 hover:underline"
                           >
-                            View details →
+                            Ver detalles →
                           </Link>
                         </td>
                       </tr>
@@ -180,7 +180,7 @@ export function CustomerDetailPage() {
           </Card>
 
           <Link to="/customers" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            ← Back to customers
+            ← Volver a Clientes
           </Link>
         </div>
       ) : null}

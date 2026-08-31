@@ -5,13 +5,13 @@ import { EmptyState } from '../components/states/EmptyState';
 export function NotFoundPage() {
   return (
     <div>
-      <PageHeader title="Page not found" description="The page you're looking for doesn't exist." />
+      <PageHeader title="Página no encontrada" description="La página que buscas no existe." />
       <EmptyState
         title="404"
-        description="Check the address, or head back to the dashboard."
+        description="Verifica la dirección o vuelve al inicio."
         action={
           <Link to="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
-            ← Back to dashboard
+            ← Volver al inicio
           </Link>
         }
       />

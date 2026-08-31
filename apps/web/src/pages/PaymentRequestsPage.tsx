@@ -39,7 +39,7 @@ export function PaymentRequestsPage() {
       setStatus('success');
     } catch (error) {
       setErrorMessage(
-        error instanceof ApiError ? error.message : 'Could not load payment requests.',
+        error instanceof ApiError ? error.message : 'No se pudieron cargar las solicitudes de pago.',
       );
       setStatus('error');
     }
@@ -68,19 +68,19 @@ export function PaymentRequestsPage() {
   return (
     <div>
       <PageHeader
-        title="Payment requests"
-        description="Every collection that has been handed off to Vudy's payment infrastructure."
+        title="Solicitudes de pago"
+        description="Cada cobro que hemos enviado a la infraestructura de pago de Vudy."
       />
 
       {status === 'loading' ? <LoadingState /> : null}
       {status === 'error' ? <ErrorState message={errorMessage} /> : null}
       {status === 'success' && paymentRequests.length === 0 ? (
         <EmptyState
-          title="No payment requests yet"
-          description="Create a payment request from an outstanding invoice when you're ready to collect."
+          title="Aún no hay solicitudes de pago"
+          description="Crea una solicitud de pago desde una factura pendiente cuando quieras iniciar el cobro."
           action={
             <Link to="/invoices" className="text-sm font-medium text-indigo-600 underline hover:no-underline">
-              View invoices →
+              Ver facturas →
             </Link>
           }
         />

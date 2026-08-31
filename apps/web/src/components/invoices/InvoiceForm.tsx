@@ -48,23 +48,23 @@ export function InvoiceForm({
     const errors: FieldErrors = {};
 
     if (!customerId) {
-      errors.customerId = 'Select a customer.';
+      errors.customerId = 'Selecciona un cliente.';
     }
     if (!number.trim()) {
-      errors.number = 'Invoice number is required.';
+      errors.number = 'El número de factura es obligatorio.';
     }
 
     const numericAmount = Number(amount);
     if (!amount.trim() || Number.isNaN(numericAmount) || numericAmount <= 0) {
-      errors.amount = 'Enter a positive amount.';
+      errors.amount = 'Ingresa un monto positivo.';
     }
 
     if (!currency.trim()) {
-      errors.currency = 'Currency is required.';
+      errors.currency = 'La moneda es obligatoria.';
     }
 
     if (!dueDate || Number.isNaN(new Date(dueDate).getTime())) {
-      errors.dueDate = 'Enter a valid due date.';
+      errors.dueDate = 'Ingresa una fecha de vencimiento válida.';
     }
 
     setFieldErrors(errors);
@@ -95,7 +95,7 @@ export function InvoiceForm({
       setFieldErrors({});
       onCreated(invoice);
     } catch (error) {
-      setSubmitError(error instanceof ApiError ? error.message : 'Could not create the invoice.');
+      setSubmitError(error instanceof ApiError ? error.message : 'No se pudo crear la factura.');
     } finally {
       setSubmitting(false);
     }
@@ -105,7 +105,7 @@ export function InvoiceForm({
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
         <label htmlFor="invoice-customer" className="block text-sm font-medium text-slate-700">
-          Customer
+          Cliente
         </label>
         <select
           id="invoice-customer"
@@ -117,7 +117,7 @@ export function InvoiceForm({
           className={INPUT_CLASSNAME}
         >
           <option value="">
-            {customersStatus === 'loading' ? 'Loading customers…' : 'Select a customer'}
+            {customersStatus === 'loading' ? 'Cargando clientes…' : 'Selecciona un cliente'}
           </option>
           {customers.map((customer) => (
             <option key={customer.id} value={customer.id}>
@@ -132,24 +132,24 @@ export function InvoiceForm({
         ) : null}
         {customersStatus === 'error' ? (
           <p className="mt-1 text-sm text-red-600">
-            Could not load customers. Refresh the page and try again.
+            No se pudieron cargar los clientes. Actualiza la página e inténtalo de nuevo.
           </p>
         ) : null}
         {noCustomersAvailable ? (
-          <p className="mt-1 text-sm text-slate-500">No customers yet — create one first.</p>
+          <p className="mt-1 text-sm text-slate-500">Aún no hay clientes — crea uno primero.</p>
         ) : null}
       </div>
 
       <div>
         <label htmlFor="invoice-number" className="block text-sm font-medium text-slate-700">
-          Invoice number
+          Número de factura
         </label>
         <input
           id="invoice-number"
           type="text"
           value={number}
           onChange={(event) => setNumber(event.target.value)}
-          placeholder="INV-001"
+          placeholder="FAC-001"
           disabled={submitting}
           aria-invalid={fieldErrors.number ? true : undefined}
           aria-describedby={fieldErrors.number ? 'invoice-number-error' : undefined}
@@ -165,7 +165,7 @@ export function InvoiceForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="invoice-amount" className="block text-sm font-medium text-slate-700">
-            Amount
+            Monto
           </label>
           <input
             id="invoice-amount"
@@ -188,7 +188,7 @@ export function InvoiceForm({
 
         <div>
           <label htmlFor="invoice-currency" className="block text-sm font-medium text-slate-700">
-            Currency
+            Moneda
           </label>
           <input
             id="invoice-currency"
@@ -211,7 +211,7 @@ export function InvoiceForm({
 
       <div>
         <label htmlFor="invoice-due-date" className="block text-sm font-medium text-slate-700">
-          Due date
+          Fecha de vencimiento
         </label>
         <input
           id="invoice-due-date"
@@ -232,7 +232,7 @@ export function InvoiceForm({
 
       <div>
         <Button type="submit" disabled={submitting || customerSelectDisabled}>
-          {submitting ? 'Creating…' : 'Create invoice'}
+          {submitting ? 'Creando…' : 'Crear factura'}
         </Button>
       </div>
 

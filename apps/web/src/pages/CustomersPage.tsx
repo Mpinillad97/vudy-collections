@@ -28,7 +28,7 @@ export function CustomersPage() {
       setCustomers(data);
       setStatus('success');
     } catch (error) {
-      setErrorMessage(error instanceof ApiError ? error.message : 'Could not load customers.');
+      setErrorMessage(error instanceof ApiError ? error.message : 'No se pudieron cargar los clientes.');
       setStatus('error');
     }
   }, []);
@@ -44,18 +44,18 @@ export function CustomersPage() {
 
   function handleCreated(customer: Customer) {
     setIsFormOpen(false);
-    setSuccessMessage(`Customer created — "${customer.name}" is ready for invoicing.`);
+    setSuccessMessage(`Cliente creado — "${customer.name}" ya puede facturarse.`);
     loadCustomers();
   }
 
   return (
     <div>
       <PageHeader
-        title="Customers"
-        description="The businesses you invoice and collect payments from."
+        title="Clientes"
+        description="Las empresas a las que facturas y cobras."
         action={
           <Button variant={isFormOpen ? 'secondary' : 'primary'} onClick={handleToggleForm}>
-            {isFormOpen ? 'Cancel' : 'New customer'}
+            {isFormOpen ? 'Cancelar' : 'Crear cliente'}
           </Button>
         }
       />
@@ -72,8 +72,8 @@ export function CustomersPage() {
       {status === 'error' ? <ErrorState message={errorMessage} /> : null}
       {status === 'success' && customers.length === 0 ? (
         <EmptyState
-          title="No customers yet"
-          description="Add your first customer to start managing invoices and collections."
+          title="Aún no tienes clientes registrados"
+          description="Crea tu primer cliente para comenzar a gestionar sus facturas y cobros."
         />
       ) : null}
       {status === 'success' && customers.length > 0 ? <CustomerList customers={customers} /> : null}

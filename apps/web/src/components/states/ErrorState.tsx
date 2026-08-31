@@ -3,7 +3,7 @@ interface ErrorStateProps {
   message: string;
 }
 
-export function ErrorState({ title = 'Something went wrong', message }: ErrorStateProps) {
+export function ErrorState({ title = 'Algo salió mal', message }: ErrorStateProps) {
   return (
     <div
       role="alert"

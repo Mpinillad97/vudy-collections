@@ -36,7 +36,7 @@ export function DashboardPage() {
       setStatus('success');
     } catch (error) {
       setErrorMessage(
-        error instanceof ApiError ? error.message : 'Could not load your Collections overview.',
+        error instanceof ApiError ? error.message : 'No se pudo cargar el resumen de cobranzas.',
       );
       setStatus('error');
     }
@@ -56,39 +56,40 @@ export function DashboardPage() {
   }, [invoices, paymentRequests]);
 
   const metrics = [
-    { label: 'Customers', value: customers.length, to: '/customers' },
-    { label: 'Invoices', value: invoices.length, to: '/invoices' },
-    { label: 'Pending collection', value: pendingCollectionCount, to: '/invoices' },
-    { label: 'Payment requests', value: paymentRequests.length, to: '/payment-requests' },
+    { label: 'Clientes', value: customers.length, to: '/customers' },
+    { label: 'Facturas', value: invoices.length, to: '/invoices' },
+    { label: 'Cobros pendientes', value: pendingCollectionCount, to: '/invoices' },
+    { label: 'Solicitudes de pago', value: paymentRequests.length, to: '/payment-requests' },
   ] as const;
 
   return (
     <div className="flex flex-col gap-8">
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-indigo-600">
-          Collections overview
+          Resumen de cobranzas
         </p>
         <h1 className="mt-1 text-2xl font-semibold tracking-tight text-slate-900">Vudy Collections</h1>
         <p className="mt-2 max-w-2xl text-sm text-slate-600">
-          Manage your B2B receivables and collect payments through Vudy's payment infrastructure.
+          Gestiona las cuentas por cobrar de tu negocio y cobra a través de la infraestructura de
+          pago de Vudy.
         </p>
         <div className="mt-4 flex flex-wrap gap-3">
           <Link
             to="/invoices"
             className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700"
           >
-            View invoices
+            Ver facturas
           </Link>
           <Link
             to="/customers"
             className="inline-flex items-center justify-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
           >
-            View customers
+            Ver clientes
           </Link>
         </div>
       </div>
 
-      {status === 'loading' ? <LoadingState message="Loading your Collections overview…" /> : null}
+      {status === 'loading' ? <LoadingState message="Cargando el resumen de cobranzas…" /> : null}
       {status === 'error' ? <ErrorState message={errorMessage} /> : null}
 
       {status === 'success' ? (

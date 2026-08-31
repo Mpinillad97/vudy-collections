@@ -28,12 +28,12 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
   function validate(): boolean {
     const errors: FieldErrors = {};
     if (!name.trim()) {
-      errors.name = 'Name is required.';
+      errors.name = 'El nombre es obligatorio.';
     }
     if (!email.trim()) {
-      errors.email = 'Email is required.';
+      errors.email = 'El correo electrónico es obligatorio.';
     } else if (!EMAIL_PATTERN.test(email.trim())) {
-      errors.email = 'Enter a valid email address.';
+      errors.email = 'Ingresa un correo electrónico válido.';
     }
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -54,7 +54,7 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
       setFieldErrors({});
       onCreated(customer);
     } catch (error) {
-      setSubmitError(error instanceof ApiError ? error.message : 'Could not create the customer.');
+      setSubmitError(error instanceof ApiError ? error.message : 'No se pudo crear el cliente.');
     } finally {
       setSubmitting(false);
     }
@@ -64,7 +64,7 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <div>
         <label htmlFor="customer-name" className="block text-sm font-medium text-slate-700">
-          Name
+          Nombre
         </label>
         <input
           id="customer-name"
@@ -85,7 +85,7 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
 
       <div>
         <label htmlFor="customer-email" className="block text-sm font-medium text-slate-700">
-          Email
+          Correo electrónico
         </label>
         <input
           id="customer-email"
@@ -106,7 +106,7 @@ export function CustomerForm({ onCreated }: CustomerFormProps) {
 
       <div>
         <Button type="submit" disabled={submitting}>
-          {submitting ? 'Creating…' : 'Create customer'}
+          {submitting ? 'Creando…' : 'Crear cliente'}
         </Button>
       </div>
 

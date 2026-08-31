@@ -12,11 +12,11 @@ export function CustomerList({ customers }: CustomerListProps) {
       <table className="min-w-full divide-y divide-slate-200 text-sm">
         <thead className="bg-slate-50 text-left text-xs font-medium uppercase tracking-wide text-slate-500">
           <tr>
-            <th scope="col" className="px-4 py-3">Customer</th>
-            <th scope="col" className="px-4 py-3">Contact</th>
-            <th scope="col" className="px-4 py-3">Customer since</th>
+            <th scope="col" className="px-4 py-3">Cliente</th>
+            <th scope="col" className="px-4 py-3">Contacto</th>
+            <th scope="col" className="px-4 py-3">Cliente desde</th>
             <th scope="col" className="px-4 py-3">
-              <span className="sr-only">Action</span>
+              <span className="sr-only">Acción</span>
             </th>
           </tr>
         </thead>
@@ -35,7 +35,7 @@ export function CustomerList({ customers }: CustomerListProps) {
                   to={`/customers/${customer.id}`}
                   className="text-sm font-medium text-indigo-600 hover:underline"
                 >
-                  View invoices →
+                  Ver facturas →
                 </Link>
               </td>
             </tr>
