@@ -65,6 +65,22 @@ export class InvoicePersistenceError extends HttpException {
 }
 
 /**
+ * The Invoice exists but has no associated PaymentRequest yet — there is
+ * nothing to check the status of.
+ */
+export class InvoicePaymentRequestNotFoundError extends HttpException {
+  constructor(invoiceId: string) {
+    super(
+      {
+        code: 'INVOICE_PAYMENT_REQUEST_NOT_FOUND',
+        message: `Invoice "${invoiceId}" does not have an associated payment request yet.`,
+      },
+      HttpStatus.NOT_FOUND,
+    );
+  }
+}
+
+/**
  * Local duplication guard (not distributed idempotency): this Invoice
  * already has an associated PaymentRequest, so another one cannot be
  * created through this endpoint. The existing paymentRequestId is echoed

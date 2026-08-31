@@ -69,3 +69,49 @@ function isVudyErrorPayload(value: unknown): value is VudyErrorPayload {
   const error = value as Record<string, unknown>;
   return typeof error.code === 'string' && typeof error.message === 'string';
 }
+
+/**
+ * Shape of GET /channel/vudy/request/{id} — verified via a real read-only
+ * call against production Vudy. Distinct from VudyPaymentRequestData (the
+ * creation response): the status lives at data.detail.status, not at the
+ * top level, so isVudyPaymentRequestData cannot be reused here.
+ */
+export interface VudyPaymentRequestStatus {
+  status: string;
+  txHash: string | null;
+}
+
+export interface VudyStatusSuccessResponse {
+  success: true;
+  data: {
+    detail: VudyPaymentRequestStatus;
+  };
+}
+
+export type VudyStatusResponse = VudyStatusSuccessResponse | VudyErrorResponse;
+
+export function isVudyStatusResponse(value: unknown): value is VudyStatusResponse {
+  if (typeof value !== 'object' || value === null || !('success' in value)) {
+    return false;
+  }
+  const candidate = value as Record<string, unknown>;
+  if (candidate.success === true) {
+    return isVudyStatusData(candidate.data);
+  }
+  if (candidate.success === false) {
+    return isVudyErrorPayload(candidate.error);
+  }
+  return false;
+}
+
+function isVudyStatusData(value: unknown): value is { detail: VudyPaymentRequestStatus } {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  const data = value as Record<string, unknown>;
+  if (typeof data.detail !== 'object' || data.detail === null) {
+    return false;
+  }
+  const detail = data.detail as Record<string, unknown>;
+  return typeof detail.status === 'string' && (detail.txHash === null || typeof detail.txHash === 'string');
+}

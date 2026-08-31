@@ -10,6 +10,7 @@ import {
   InvoiceCustomerNotFoundError,
   InvoiceNotFoundError,
   InvoicePaymentRequestAlreadyExistsError,
+  InvoicePaymentRequestNotFoundError,
   InvoicePersistenceError,
   InvoiceQueryError,
 } from './invoices.exceptions';
@@ -150,6 +151,46 @@ export class InvoicesService {
       });
     } catch {
       throw new PaymentRequestPersistenceError(vudyData.id);
+    }
+  }
+
+  /**
+   * On-demand status check against Vudy — never automatic, never polled.
+   * Vudy stays the sole source of truth: the persisted `status` is always a
+   * direct overwrite of whatever Vudy just returned, never inferred or
+   * defaulted locally. A query failure never gets silently mapped to
+   * "pending" or "completed" — it propagates as its own error.
+   */
+  async checkPaymentRequestStatus(invoiceId: string): Promise<PaymentRequest> {
+    let invoice: InvoiceWithPaymentRequest | null;
+    try {
+      invoice = await this.prisma.invoice.findUnique({
+        where: { id: invoiceId },
+        include: { paymentRequest: true },
+      });
+    } catch {
+      throw new InvoiceQueryError();
+    }
+
+    if (!invoice) {
+      throw new InvoiceNotFoundError(invoiceId);
+    }
+
+    if (!invoice.paymentRequest) {
+      throw new InvoicePaymentRequestNotFoundError(invoiceId);
+    }
+
+    const vudyStatus = await this.vudyService.getPaymentRequestStatus(
+      invoice.paymentRequest.vudyRequestId,
+    );
+
+    try {
+      return await this.prisma.paymentRequest.update({
+        where: { id: invoice.paymentRequest.id },
+        data: { status: vudyStatus.status },
+      });
+    } catch {
+      throw new PaymentRequestPersistenceError(invoice.paymentRequest.vudyRequestId);
     }
   }
 }

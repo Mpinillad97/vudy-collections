@@ -52,6 +52,12 @@ export class InvoicesController {
     return { success: true, data: record };
   }
 
+  @Post(':id/payment-request/status')
+  async checkPaymentRequestStatus(@Param('id') id: string) {
+    const record = await this.invoicesService.checkPaymentRequestStatus(id);
+    return { success: true, data: record };
+  }
+
   private validatePaymentRequestBody(body: CreateInvoicePaymentRequestDto): void {
     if (typeof body?.requestedChain !== 'string' || body.requestedChain.trim() === '') {
       throw new BadRequestException('"requestedChain" is required and must be a non-empty string.');

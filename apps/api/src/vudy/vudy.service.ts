@@ -6,8 +6,12 @@ import {
   VudyTimeoutError,
   VudyUpstreamError,
 } from './vudy.exceptions';
-import type { CreatePaymentRequestInput, VudyPaymentRequestData } from './vudy.types';
-import { isVudyResponse } from './vudy.types';
+import type {
+  CreatePaymentRequestInput,
+  VudyPaymentRequestData,
+  VudyPaymentRequestStatus,
+} from './vudy.types';
+import { isVudyResponse, isVudyStatusResponse } from './vudy.types';
 
 const REQUEST_TIMEOUT_MS = 15_000;
 
@@ -102,5 +106,67 @@ export class VudyService {
     }
 
     return body.data;
+  }
+
+  /**
+   * On-demand only — never polled, never scheduled. Reuses the exact same
+   * auth pattern as createPaymentRequest, against GET
+   * /channel/vudy/request/{id}, verified for real against production Vudy.
+   */
+  async getPaymentRequestStatus(vudyRequestId: string): Promise<VudyPaymentRequestStatus> {
+    const config = this.readConfig();
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    let response: Response;
+    try {
+      response = await fetch(
+        `${config.apiUrl}/channel/vudy/request/${encodeURIComponent(vudyRequestId)}`,
+        {
+          method: 'GET',
+          headers: {
+            'x-api-key': config.apiKey,
+            'x-profile-id': config.profileId,
+            'x-team-id': config.teamId,
+          },
+          signal: controller.signal,
+        },
+      );
+    } catch (err) {
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw new VudyTimeoutError();
+      }
+      throw new VudyNetworkError(
+        err instanceof Error ? err.message : 'Unknown network error while contacting Vudy.',
+      );
+    } finally {
+      clearTimeout(timeout);
+    }
+
+    let body: unknown;
+    try {
+      body = await response.json();
+    } catch {
+      throw new VudyMalformedResponseError();
+    }
+
+    if (!isVudyStatusResponse(body)) {
+      throw new VudyMalformedResponseError();
+    }
+
+    if (!body.success) {
+      throw new VudyUpstreamError(response.status, body.error.code, body.error.message);
+    }
+
+    if (!response.ok) {
+      throw new VudyUpstreamError(
+        response.status,
+        'VUDY_HTTP_ERROR',
+        `Vudy responded with HTTP ${response.status}.`,
+      );
+    }
+
+    return body.data.detail;
   }
 }

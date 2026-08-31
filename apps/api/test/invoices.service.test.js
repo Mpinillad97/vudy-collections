@@ -12,6 +12,7 @@ const {
   InvoiceCustomerNotFoundError,
   InvoiceNotFoundError,
   InvoicePaymentRequestAlreadyExistsError,
+  InvoicePaymentRequestNotFoundError,
   InvoicePersistenceError,
   InvoiceQueryError,
 } = require('../dist/invoices/invoices.exceptions');
@@ -24,6 +25,9 @@ const { Prisma } = require('@prisma/client');
 const vudyServiceThatMustNotBeCalled = {
   createPaymentRequest: async () => {
     throw new Error('VudyService.createPaymentRequest must not be called here');
+  },
+  getPaymentRequestStatus: async () => {
+    throw new Error('VudyService.getPaymentRequestStatus must not be called here');
   },
 };
 
@@ -524,4 +528,119 @@ test('createPaymentRequest throws VudyConfigurationError and never calls Vudy wh
     await assert.rejects(() => service.createPaymentRequest('inv_1', PR_DTO), VudyConfigurationError);
     assert.equal(vudyCalled, false);
   });
+});
+
+// --- checkPaymentRequestStatus ---------------------------------------------
+
+test('checkPaymentRequestStatus queries Vudy by vudyRequestId, persists, and returns the updated status (Case 1)', async () => {
+  const invoice = invoiceWithNoPaymentRequest({
+    paymentRequest: { id: 'pr_1', vudyRequestId: 'req_abc123' },
+  });
+  let vudyCallArgs;
+  const fakeVudy = {
+    getPaymentRequestStatus: async (vudyRequestId) => {
+      vudyCallArgs = vudyRequestId;
+      return { status: 'pending', txHash: null };
+    },
+  };
+  let prismaUpdateArgs;
+  const fakePrisma = {
+    invoice: { findUnique: async () => invoice },
+    paymentRequest: {
+      update: async (args) => {
+        prismaUpdateArgs = args;
+        return { id: 'pr_1', vudyRequestId: 'req_abc123', status: 'pending' };
+      },
+    },
+  };
+
+  const service = new InvoicesService(fakePrisma, fakeVudy);
+  const result = await service.checkPaymentRequestStatus('inv_1');
+
+  assert.equal(vudyCallArgs, 'req_abc123');
+  assert.deepEqual(prismaUpdateArgs, { where: { id: 'pr_1' }, data: { status: 'pending' } });
+  assert.equal(result.status, 'pending');
+});
+
+test('checkPaymentRequestStatus propagates a Vudy failure and never persists any status (Case 2: never shows Completed on error)', async () => {
+  const invoice = invoiceWithNoPaymentRequest({
+    paymentRequest: { id: 'pr_1', vudyRequestId: 'req_abc123' },
+  });
+  const fakeVudy = {
+    getPaymentRequestStatus: async () => {
+      throw new VudyUpstreamError(502, 'VUDY_UPSTREAM_DOWN', 'Vudy is unavailable');
+    },
+  };
+  let updateCalled = false;
+  const fakePrisma = {
+    invoice: { findUnique: async () => invoice },
+    paymentRequest: {
+      update: async () => {
+        updateCalled = true;
+      },
+    },
+  };
+
+  const service = new InvoicesService(fakePrisma, fakeVudy);
+
+  await assert.rejects(() => service.checkPaymentRequestStatus('inv_1'), VudyUpstreamError);
+  assert.equal(updateCalled, false, 'a failed status check must never be persisted as any status');
+});
+
+test('checkPaymentRequestStatus throws InvoiceNotFoundError and never calls Vudy when the invoice does not exist (Case 3)', async () => {
+  const fakePrisma = { invoice: { findUnique: async () => null } };
+  const service = new InvoicesService(fakePrisma, vudyServiceThatMustNotBeCalled);
+
+  await assert.rejects(
+    () => service.checkPaymentRequestStatus('does-not-exist'),
+    (err) => {
+      assert.ok(err instanceof InvoiceNotFoundError);
+      assert.equal(err.getStatus(), 404);
+      return true;
+    },
+  );
+});
+
+test('checkPaymentRequestStatus throws InvoicePaymentRequestNotFoundError and never calls Vudy when the invoice has no payment request (Case 3)', async () => {
+  const invoice = invoiceWithNoPaymentRequest();
+  const fakePrisma = { invoice: { findUnique: async () => invoice } };
+  const service = new InvoicesService(fakePrisma, vudyServiceThatMustNotBeCalled);
+
+  await assert.rejects(
+    () => service.checkPaymentRequestStatus('inv_1'),
+    (err) => {
+      assert.ok(err instanceof InvoicePaymentRequestNotFoundError);
+      assert.equal(err.getStatus(), 404);
+      assert.match(err.message, /inv_1/);
+      return true;
+    },
+  );
+});
+
+test('checkPaymentRequestStatus wraps a persistence failure after a successful Vudy call', async () => {
+  const invoice = invoiceWithNoPaymentRequest({
+    paymentRequest: { id: 'pr_1', vudyRequestId: 'req_abc123' },
+  });
+  const fakeVudy = {
+    getPaymentRequestStatus: async () => ({ status: 'completed', txHash: '0xabc' }),
+  };
+  const fakePrisma = {
+    invoice: { findUnique: async () => invoice },
+    paymentRequest: {
+      update: async () => {
+        throw new Error('connection refused');
+      },
+    },
+  };
+
+  const service = new InvoicesService(fakePrisma, fakeVudy);
+
+  await assert.rejects(
+    () => service.checkPaymentRequestStatus('inv_1'),
+    (err) => {
+      assert.ok(err instanceof PaymentRequestPersistenceError);
+      assert.equal(err.getStatus(), 500);
+      return true;
+    },
+  );
 });

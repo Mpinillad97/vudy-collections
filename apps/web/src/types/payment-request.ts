@@ -12,6 +12,8 @@ export interface PaymentRequest {
   currencyToken: string;
   requestedChain: string;
   requestedToken: string;
+  /** Last known Vudy lifecycle status ("pending"/"completed", verbatim). Null means never checked yet. */
+  status: string | null;
   customId: string | null;
   note: string | null;
   createdAt: string;

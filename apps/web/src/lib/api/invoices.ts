@@ -49,3 +49,14 @@ export async function createInvoicePaymentRequest(
   );
   return response.data;
 }
+
+/**
+ * On-demand only — no polling. Backend queries Vudy fresh and persists the
+ * result; this never talks to Vudy directly from the frontend.
+ */
+export async function checkInvoicePaymentRequestStatus(invoiceId: string): Promise<PaymentRequest> {
+  const response = await apiClient.post<ApiSuccessEnvelope<PaymentRequest>>(
+    `/invoices/${encodeURIComponent(invoiceId)}/payment-request/status`,
+  );
+  return response.data;
+}

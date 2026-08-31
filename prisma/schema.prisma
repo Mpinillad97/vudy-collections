@@ -23,6 +23,11 @@ model PaymentRequest {
   currencyToken  String
   requestedChain String
   requestedToken String
+  // Last known lifecycle status from Vudy ("pending"/"completed", verbatim —
+  // never inferred locally), written only as a direct overwrite from an
+  // explicit GET /channel/vudy/request/{vudyRequestId} check. Null means
+  // "never checked yet", distinct from "pending".
+  status         String?
   customId       String?
   note           String?
   createdAt      DateTime @default(now())

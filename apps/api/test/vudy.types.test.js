@@ -5,7 +5,7 @@
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { isVudyResponse } = require('../dist/vudy/vudy.types');
+const { isVudyResponse, isVudyStatusResponse } = require('../dist/vudy/vudy.types');
 
 test('accepts a valid success response', () => {
   assert.equal(
@@ -96,4 +96,60 @@ test('rejects a top-level shape without a boolean success field', () => {
   assert.equal(isVudyResponse({ success: 'true', data: {} }), false);
   assert.equal(isVudyResponse(null), false);
   assert.equal(isVudyResponse('not an object'), false);
+});
+
+// --- isVudyStatusResponse (GET /channel/vudy/request/{id}) -----------------
+// Shape verified against a real, read-only call to production Vudy.
+
+test('accepts a valid status success response with a null txHash', () => {
+  assert.equal(
+    isVudyStatusResponse({
+      success: true,
+      data: { detail: { status: 'pending', txHash: null } },
+    }),
+    true,
+  );
+});
+
+test('accepts a valid status success response with a string txHash', () => {
+  assert.equal(
+    isVudyStatusResponse({
+      success: true,
+      data: { detail: { status: 'completed', txHash: '0xabc123' } },
+    }),
+    true,
+  );
+});
+
+test('rejects a status response missing data.detail', () => {
+  assert.equal(isVudyStatusResponse({ success: true, data: {} }), false);
+});
+
+test('rejects a status response missing status', () => {
+  assert.equal(
+    isVudyStatusResponse({ success: true, data: { detail: { txHash: null } } }),
+    false,
+  );
+});
+
+test('rejects a status response with a non-string, non-null txHash', () => {
+  assert.equal(
+    isVudyStatusResponse({ success: true, data: { detail: { status: 'pending', txHash: 123 } } }),
+    false,
+  );
+});
+
+test('accepts a valid status error response, reusing the same error envelope', () => {
+  assert.equal(
+    isVudyStatusResponse({
+      success: false,
+      error: { code: 'NOT_FOUND', message: 'Request not found' },
+    }),
+    true,
+  );
+});
+
+test('rejects a status response without a boolean success field', () => {
+  assert.equal(isVudyStatusResponse({ data: {} }), false);
+  assert.equal(isVudyStatusResponse(null), false);
 });
